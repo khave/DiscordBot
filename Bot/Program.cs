@@ -14,9 +14,9 @@ namespace Bot
 
         static void Main(string[] args)
         {
+            //Register bot
             MyBot bot = new MyBot();
         }
-
         
     }
 }

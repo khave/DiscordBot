@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Bot.Commands;
+using Bot.Responses;
+using Bot.Commands.AudioCommands;
+using Bot.Audio;
 
 namespace Bot
 {
@@ -13,8 +16,11 @@ namespace Bot
     
     class MyBot
     {
-        DiscordClient discord;
-        List<BotCommand> commands = new List<BotCommand>();
+        public DiscordClient discord;
+        public List<BotCommand> commands = new List<BotCommand>();
+        public List<AudioCommand> audioCommands = new List<AudioCommand>();
+        public List<Response> responses = new List<Response>();
+        public AudioManager audioManager;
 
         public MyBot()
         {
@@ -30,7 +36,9 @@ namespace Bot
                 x.AllowMentionPrefix = true;
             });
 
-            loadCommands();
+            load();
+
+            audioManager = new AudioManager(this);
 
             var commands = discord.GetService<CommandService>();
             foreach (BotCommand cmd in this.commands)
@@ -43,6 +51,9 @@ namespace Bot
                 });
             }
 
+
+            
+            
 
             //Custom command system
             /*
@@ -65,6 +76,8 @@ namespace Bot
             };
              */
 
+            //Register scripts
+            CleverBotScript cleverBotScript = new CleverBotScript(this);
 
             discord.ExecuteAndWait(async () =>
            {
@@ -72,9 +85,27 @@ namespace Bot
            });
         }
 
-        private void loadCommands()
+        private void load()
         {
-            commands.Add(new Hello());
+            //Commands
+            commands.Add(new Commands.Hello());
+            commands.Add(new Help(this));
+            commands.Add(new Music(this));
+            commands.Add(new MusicJoin(this));
+            audioCommands.Add(new Commands.AudioCommands.Hello());
+
+            //Responses
+            //TODO: Load responses from either txt-file or database
+        }
+
+        private void save()
+        {
+            //TODO: Save responses
+        }
+
+        public List<Response> getResponses()
+        {
+            return responses;
         }
 
         private void Log(object sender, LogMessageEventArgs e)

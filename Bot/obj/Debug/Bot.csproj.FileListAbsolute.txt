@@ -55,3 +55,5 @@ C:\Users\Kristian\Source\Repos\DiscordBot\Bot\bin\Debug\Nito.AsyncEx.Concurrent.
 C:\Users\Kristian\Source\Repos\DiscordBot\Bot\bin\Debug\Nito.AsyncEx.Enlightenment.xml
 C:\Users\Kristian\Source\Repos\DiscordBot\Bot\bin\Debug\RestSharp.xml
 C:\Users\Kristian\Source\Repos\DiscordBot\Bot\obj\Debug\Bot.csprojResolveAssemblyReference.cache
+C:\Users\Kristian\Source\Repos\DiscordBot\Bot\bin\Debug\Cleverbot.Net.dll
+C:\Users\Kristian\Source\Repos\DiscordBot\Bot\bin\Debug\Discord.Net.Audio.dll
