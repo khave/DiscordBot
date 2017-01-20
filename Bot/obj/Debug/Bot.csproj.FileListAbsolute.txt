@@ -36,3 +36,22 @@ C:\Users\Multi09\Documents\Visual Studio 2015\Projects\DiscordBot\Bot\bin\Debug\
 C:\Users\Multi09\Documents\Visual Studio 2015\Projects\DiscordBot\Bot\bin\Debug\Nito.AsyncEx.Enlightenment.xml
 C:\Users\Multi09\Documents\Visual Studio 2015\Projects\DiscordBot\Bot\bin\Debug\RestSharp.xml
 C:\Users\Multi09\Documents\Visual Studio 2015\Projects\DiscordBot\Bot\obj\Debug\Bot.csprojResolveAssemblyReference.cache
+C:\Users\Kristian\Source\Repos\DiscordBot\Bot\bin\Debug\Bot.exe.config
+C:\Users\Kristian\Source\Repos\DiscordBot\Bot\obj\Debug\Bot.exe
+C:\Users\Kristian\Source\Repos\DiscordBot\Bot\obj\Debug\Bot.pdb
+C:\Users\Kristian\Source\Repos\DiscordBot\Bot\bin\Debug\Bot.exe
+C:\Users\Kristian\Source\Repos\DiscordBot\Bot\bin\Debug\Bot.pdb
+C:\Users\Kristian\Source\Repos\DiscordBot\Bot\bin\Debug\Discord.Net.Commands.dll
+C:\Users\Kristian\Source\Repos\DiscordBot\Bot\bin\Debug\Discord.Net.dll
+C:\Users\Kristian\Source\Repos\DiscordBot\Bot\bin\Debug\Newtonsoft.Json.dll
+C:\Users\Kristian\Source\Repos\DiscordBot\Bot\bin\Debug\Nito.AsyncEx.Concurrent.dll
+C:\Users\Kristian\Source\Repos\DiscordBot\Bot\bin\Debug\Nito.AsyncEx.dll
+C:\Users\Kristian\Source\Repos\DiscordBot\Bot\bin\Debug\Nito.AsyncEx.Enlightenment.dll
+C:\Users\Kristian\Source\Repos\DiscordBot\Bot\bin\Debug\RestSharp.dll
+C:\Users\Kristian\Source\Repos\DiscordBot\Bot\bin\Debug\WebSocket4Net.dll
+C:\Users\Kristian\Source\Repos\DiscordBot\Bot\bin\Debug\Newtonsoft.Json.xml
+C:\Users\Kristian\Source\Repos\DiscordBot\Bot\bin\Debug\Nito.AsyncEx.xml
+C:\Users\Kristian\Source\Repos\DiscordBot\Bot\bin\Debug\Nito.AsyncEx.Concurrent.xml
+C:\Users\Kristian\Source\Repos\DiscordBot\Bot\bin\Debug\Nito.AsyncEx.Enlightenment.xml
+C:\Users\Kristian\Source\Repos\DiscordBot\Bot\bin\Debug\RestSharp.xml
+C:\Users\Kristian\Source\Repos\DiscordBot\Bot\obj\Debug\Bot.csprojResolveAssemblyReference.cache
