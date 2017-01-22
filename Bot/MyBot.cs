@@ -92,6 +92,7 @@ namespace Bot
             commands.Add(new Help(this));
             commands.Add(new Music(this));
             commands.Add(new MusicJoin(this));
+            commands.Add(new Cat());
             audioCommands.Add(new Commands.AudioCommands.Hello());
 
             //Responses

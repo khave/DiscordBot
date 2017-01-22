@@ -20,9 +20,8 @@ namespace Bot.Commands.AudioCommands
 
         public override void onCommand(CommandEventArgs e, DiscordClient discord, string[] args)
         {
-            e.Channel.SendMessage("Called command");
+            e.Channel.SendMessage("have an air horn instead");
             myBot.audioManager.joinVoiceChannel(e, e.User);
-            e.Channel.SendMessage("Joined voice channel");
         }
     }
 }

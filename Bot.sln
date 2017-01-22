@@ -1,9 +1,19 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bot", "Bot\Bot.csproj", "{33CFDD8F-BF5A-49EF-B891-4AC6862577AD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{21C905C1-3DCC-4FD7-BB26-CFBEE3919CED}"
+	ProjectSection(SolutionItems) = preProject
+		airHorn.mp4 = airHorn.mp4
+		ffmpeg.exe = ffmpeg.exe
+		ffplay.exe = ffplay.exe
+		ffprobe.exe = ffprobe.exe
+		libsodium.dll = libsodium.dll
+		opus.dll = opus.dll
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

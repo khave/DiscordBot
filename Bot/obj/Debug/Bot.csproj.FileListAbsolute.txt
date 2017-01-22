@@ -57,3 +57,11 @@ C:\Users\Kristian\Source\Repos\DiscordBot\Bot\bin\Debug\RestSharp.xml
 C:\Users\Kristian\Source\Repos\DiscordBot\Bot\obj\Debug\Bot.csprojResolveAssemblyReference.cache
 C:\Users\Kristian\Source\Repos\DiscordBot\Bot\bin\Debug\Cleverbot.Net.dll
 C:\Users\Kristian\Source\Repos\DiscordBot\Bot\bin\Debug\Discord.Net.Audio.dll
+C:\Users\Kristian\Source\Repos\DiscordBot\Bot\bin\Debug\NAudio.dll
+C:\Users\Kristian\Source\Repos\DiscordBot\Bot\bin\Debug\NAudio.xml
+C:\Users\Kristian\Source\Repos\DiscordBot\Bot\bin\Debug\Audio\libsodium.dll
+C:\Users\Kristian\Source\Repos\DiscordBot\Bot\bin\Debug\Audio\opus.dll
+C:\Users\Kristian\Source\Repos\DiscordBot\Bot\bin\Debug\libsodium.dll
+C:\Users\Kristian\Source\Repos\DiscordBot\Bot\bin\Debug\opus.dll
+C:\Users\Kristian\Source\Repos\DiscordBot\Bot\bin\Debug\airHorn.mp4
+C:\Users\Kristian\Source\Repos\DiscordBot\Bot\bin\Debug\ffmpeg.exe
