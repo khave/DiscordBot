@@ -20,10 +20,12 @@ namespace Bot.Commands
 
         public override void onCommand(CommandEventArgs e, DiscordClient discord, string[] args)
         {
+            string complete = "```";
             foreach(BotCommand cmd in myBot.commands)
             {
-                e.Channel.SendMessage("```" + cmd.getCommand() + "      -       " + cmd.getUsage() + "```");
+                complete +=  + "\n" + cmd.getCommand() + "      -       " + cmd.getUsage();
             }
+            e.Channel.SendMessage("complete + ```");
         }
     }
 }
