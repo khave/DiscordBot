@@ -13,7 +13,7 @@ namespace Bot.Commands
 
         MyBot myBot;
 
-        public Help(MyBot myBot) : base("help", "Shows you a list of commands and how to use them")
+        public Help(MyBot myBot) : base("help", "Shows you a list of commands and how to use them", "help")
         {
             this.myBot = myBot;
         }
@@ -23,9 +23,10 @@ namespace Bot.Commands
             string complete = "```";
             foreach(BotCommand cmd in myBot.commands)
             {
-                complete +=  + "\n" + cmd.getCommand() + "      -       " + cmd.getUsage();
+                complete += "\n" + cmd.getCommand() + "      -       " + cmd.getUsage();
             }
-            e.Channel.SendMessage("complete + ```");
+            e.Channel.SendMessage(complete + "```");
+            myBot.discord.GetService<CommandService>().ShowGeneralHelp(e.User, e.Channel);
         }
     }
 }

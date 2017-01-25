@@ -11,23 +11,28 @@ namespace Bot
     abstract class BotCommand
     {
 
-        private string command, usage;
+        private string command, description, usage;
         private string[] aliases;
 
 
         //Constructor
-        public BotCommand(string command, string usage)
+        public BotCommand(string command, string description, string usage)
         {
             this.command = command;
+            this.description = description;
             this.usage = usage;
         }
 
         //Constructor
-        public BotCommand(string command, string usage, string[] aliases) : this(command, usage)
+        public BotCommand(string command, string description, string usage, string[] aliases)
         {
+            this.command = command;
+            this.description = description;
+            this.usage = usage;
             this.aliases = aliases;
         }
 
+   
         public abstract void onCommand(CommandEventArgs e, DiscordClient discord, String[] args);
 
         public string getCommand()
@@ -38,6 +43,11 @@ namespace Bot
         public string getUsage()
         {
             return usage;
+        }
+
+        public string getDescription()
+        {
+            return description;
         }
 
         public string[] getAliases()

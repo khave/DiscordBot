@@ -9,6 +9,7 @@ using Bot.Commands;
 using Bot.Responses;
 using Bot.Commands.AudioCommands;
 using Bot.Audio;
+using Bot.Events;
 
 namespace Bot
 {
@@ -30,30 +31,34 @@ namespace Bot
                 x.LogHandler = Log;
             });
 
-            discord.UsingCommands(x =>
-            {
-                x.PrefixChar = '!';
-                x.AllowMentionPrefix = true;
-            });
+            
+          discord.UsingCommands(x =>
+          {
+              x.PrefixChar = '!';
+              x.AllowMentionPrefix = true;
+          });
+              
 
             load();
 
-            audioManager = new AudioManager(this);
+          audioManager = new AudioManager(this);
 
-            var commands = discord.GetService<CommandService>();
-            foreach (BotCommand cmd in this.commands)
-            {
-                commands.CreateCommand(cmd.getCommand()).Description(cmd.getUsage()).Do(async (e) =>
-                {
-                    string[] args = e.Message.Text.Split(null);
-                    cmd.onCommand(e, discord, args);
-                    await e.Channel.SendMessage("");
-                });
-            }
+          
+          var commands = discord.GetService<CommandService>();
+          foreach (BotCommand cmd in this.commands)
+          {
+              commands.CreateCommand(cmd.getCommand()).Description(cmd.getUsage()).Do(async (e) =>
+              {
+                  string[] args = e.Message.Text.Replace(cmd.getCommand(), "").Split(null);
+                  cmd.onCommand(e, discord, args);
+                  await e.Channel.SendMessage("");
+              });
+          }
+            new MusicPlay(this);
 
 
-            
-            
+
+
 
             //Custom command system
             /*
@@ -78,6 +83,7 @@ namespace Bot
 
             //Register scripts
             CleverBotScript cleverBotScript = new CleverBotScript(this);
+            //MessageReceived messageReceived = new MessageReceived(this);
 
             discord.ExecuteAndWait(async () =>
            {
@@ -90,9 +96,11 @@ namespace Bot
             //Commands
             commands.Add(new Commands.Hello());
             commands.Add(new Help(this));
-            commands.Add(new Music(this));
             commands.Add(new MusicJoin(this));
             commands.Add(new Cat());
+            commands.Add(new MusicDownload());
+            commands.Add(new MusicPause(this));
+            commands.Add(new MusicStop(this));
             audioCommands.Add(new Commands.AudioCommands.Hello());
 
             //Responses

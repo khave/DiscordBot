@@ -11,7 +11,7 @@ namespace Bot.Commands
     class Hello : BotCommand
     {
 
-        public Hello() : base("hello", "Hello World Command!")
+        public Hello() : base("hello", "Hello World Command!", "hello")
         {
             //some code
         }
