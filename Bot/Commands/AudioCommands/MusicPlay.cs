@@ -3,20 +3,21 @@ using System;
 using System.Net;
 using System.Text.RegularExpressions;
 using YoutubeSearch;
+using Discord;
 
 namespace Bot.Commands.AudioCommands
 {
-    class MusicPlay
+    class MusicPlay : BotCommand
     {
 
         MyBot myBot;
         WebClient webClient;
 
-        public MusicPlay(MyBot myBot)
+        public MusicPlay(MyBot myBot) : base("music play", "Play music", "music play <url>", new string[] { "play" })
         {
             this.myBot = myBot;
             this.webClient = new WebClient();
-            onCommand();
+            //onCommand();
         }
 
         public void onCommand()
@@ -24,7 +25,7 @@ namespace Bot.Commands.AudioCommands
             var items = new VideoSearch();
 
             myBot.discord.GetService<CommandService>().CreateCommand("music play").Alias(new string[] { "play", "m play" })
-                .Parameter("url", ParameterType.Required)
+                .Parameter("url", ParameterType.Unparsed)
                 .Do(async (e) =>
             {
                 e.Channel.SendMessage("Searching for first video...");
@@ -52,6 +53,14 @@ namespace Bot.Commands.AudioCommands
             MatchCollection result = Regex.Matches(html, pattern, RegexOptions.Singleline);
             string url = string.Concat("http://www.youtube.com/watch?v=", VideoItemHelper.cull(result[0].Value, "watch?v=", "\""));
             return url;
+        }
+
+        public override void onCommand(CommandEventArgs e, DiscordClient discord, string[] args)
+        {
+            e.Channel.SendMessage("Searching for first video...");
+            string url = String.Join(" ", args);
+            string videoUrl = getVideoUrl(url);
+            myBot.audioManager.play(e, e.User, videoUrl);
         }
     }
 }

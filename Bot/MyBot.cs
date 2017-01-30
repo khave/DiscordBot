@@ -39,7 +39,7 @@ namespace Bot
           });
               
 
-            load();
+          load();
 
           audioManager = new AudioManager(this);
 
@@ -47,14 +47,35 @@ namespace Bot
           var commands = discord.GetService<CommandService>();
           foreach (BotCommand cmd in this.commands)
           {
-              commands.CreateCommand(cmd.getCommand()).Description(cmd.getUsage()).Do(async (e) =>
-              {
-                  string[] args = e.Message.Text.Replace(cmd.getCommand(), "").Split(null);
-                  cmd.onCommand(e, discord, args);
-                  await e.Channel.SendMessage("");
-              });
+
+                if (cmd.getAliases() == null)
+                {
+                    commands.CreateCommand(cmd.getCommand()).Description(cmd.getUsage()).Parameter("arg", ParameterType.Unparsed).Do(async (e) =>
+                    {
+                        if (cmd.requiresAdmin() && !hasAdmin(e))
+                        {
+                            await e.Channel.SendMessage("That is an admin command, and you are not admin!");
+                            return;
+                        }
+
+                        string[] args = e.GetArg("arg")?.Replace(cmd.getCommand(), "").Split(null);
+                        cmd.onCommand(e, discord, args);
+                    });
+                }
+                else {
+                    commands.CreateCommand(cmd.getCommand()).Description(cmd.getUsage()).Alias(cmd.getAliases()).Parameter("arg", ParameterType.Unparsed).Do(async (e) =>
+                    {
+                        if (cmd.requiresAdmin() && !hasAdmin(e))
+                        {
+                            await e.Channel.SendMessage("That is an admin command, and you are not admin!");
+                            return;
+                        }
+
+                        string[] args = e.GetArg("arg")?.Replace(cmd.getCommand(), "").Split(null);
+                        cmd.onCommand(e, discord, args);
+                    });
+                }
           }
-            new MusicPlay(this);
 
 
 
@@ -85,9 +106,12 @@ namespace Bot
             CleverBotScript cleverBotScript = new CleverBotScript(this);
             //MessageReceived messageReceived = new MessageReceived(this);
 
+
+            //discord.SetGame(new Game("use !help for commands"));
+
             discord.ExecuteAndWait(async () =>
            {
-               await discord.Connect("MjcxOTg3MDQ1MTAwOTQ1NDA4.C2Oc9A.Y5ng8OYKAWbV9DRBNAl7L5mHsuI", TokenType.Bot);
+               await discord.Connect("MjcxOTg3MDQ1MTAwOTQ1NDA4.C21F9Q.9OC5Lt1uMKyLVPoqhL-Rzp10mOo", TokenType.Bot);
            });
         }
 
@@ -101,6 +125,10 @@ namespace Bot
             commands.Add(new MusicDownload());
             commands.Add(new MusicPause(this));
             commands.Add(new MusicStop(this));
+            commands.Add(new MusicPlay(this));
+            commands.Add(new Roll(this));
+            //new MusicPlay(this);
+            new Test(this);
             audioCommands.Add(new Commands.AudioCommands.Hello());
 
             //Responses
@@ -120,6 +148,11 @@ namespace Bot
         private void Log(object sender, LogMessageEventArgs e)
         {
             Console.WriteLine(e.Message);
+        }
+
+        public bool hasAdmin(CommandEventArgs e)
+        {
+            return e.User.HasRole(e.Server.FindRoles("BOT MASTERS").First()) || e.User.HasRole(e.Server.FindRoles("Generals").First()) || e.User.Name == "khave";
         }
     }
 }

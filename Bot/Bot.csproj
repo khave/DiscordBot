@@ -112,6 +112,8 @@
     <Compile Include="Commands\Cat.cs" />
     <Compile Include="Commands\Hello.cs" />
     <Compile Include="Commands\Help.cs" />
+    <Compile Include="Commands\Roll.cs" />
+    <Compile Include="Commands\Test.cs" />
     <Compile Include="Events\MessageReceived.cs" />
     <Compile Include="MyBot.cs" />
     <Compile Include="Program.cs" />

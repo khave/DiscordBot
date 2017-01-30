@@ -20,13 +20,13 @@ namespace Bot.Commands
 
         public override void onCommand(CommandEventArgs e, DiscordClient discord, string[] args)
         {
+            //TODO: Make help output string with same amount of spaces
             string complete = "```";
             foreach(BotCommand cmd in myBot.commands)
             {
                 complete += "\n" + cmd.getCommand() + "      -       " + cmd.getUsage();
             }
             e.Channel.SendMessage(complete + "```");
-            myBot.discord.GetService<CommandService>().ShowGeneralHelp(e.User, e.Channel);
         }
     }
 }

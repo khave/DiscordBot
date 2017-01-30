@@ -33,7 +33,7 @@ namespace Bot
                         if (msg == cmd.getCommand()) return;
                     }
                     try {
-                        e.Channel.SendIsTyping();
+                        await e.Channel.SendIsTyping();
                         await e.Channel.SendMessage(session.Send(msg));
                     }catch(ArgumentException exc)
                     {

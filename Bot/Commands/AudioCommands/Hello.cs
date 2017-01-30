@@ -13,7 +13,7 @@ namespace Bot.Commands.AudioCommands
 
         public Hello() : base("hello", "Hello World Command!")
         {
-            //some code
+           
         }
 
         public override void onCommand(CommandEventArgs e, DiscordClient discord, string[] args)

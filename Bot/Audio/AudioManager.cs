@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord;
@@ -11,6 +10,7 @@ using System.IO;
 using YoutubeExtractor;
 using NAudio.Wave;
 using VideoLibrary;
+using System.Net;
 
 namespace Bot.Audio
 {
@@ -22,6 +22,7 @@ namespace Bot.Audio
         private static bool playingSong = false;
         public static DiscordClient _client;
         private bool forceStop = false;
+        private int[] resolutions = { 720, 480, 360, 240 };
 
         public AudioManager(MyBot myBot)
         {
@@ -37,14 +38,14 @@ namespace Bot.Audio
         {
             if (user.VoiceChannel == null)
             {
-                e.Channel.SendMessage("ERROR: You're not in a channel");
+                await e.Channel.SendMessage("ERROR: You're not in a channel");
                 return;
             }
             _vClient = await _client.GetService<AudioService>().Join(user.VoiceChannel);
 
             if (playingSong)
             {
-                stop();
+                await stop();
             }
 
             playFile(e, user, url);
@@ -54,7 +55,7 @@ namespace Bot.Audio
         {
             if (user.VoiceChannel == null)
             {
-                e.Channel.SendMessage("ERROR: You're not in a channel");
+                await e.Channel.SendMessage("ERROR: You're not in a channel");
                 return;
             }
 
@@ -65,25 +66,39 @@ namespace Bot.Audio
         {
             await _vClient.Disconnect();
         }
+        
 
         public async void playFile(CommandEventArgs e, User user, string url)
         {
             using (var cli = Client.For(new YouTube()))
             {
+                var watch = System.Diagnostics.Stopwatch.StartNew();
                 var videos = cli.GetAllVideos(url);
-                var video = videos.FirstOrDefault(v => v.Resolution == 240);
-                Console.WriteLine("Found video: " + video.Title);
-                if(File.Exists(@".\music\" + video.Title.Replace(" ", "_") + ".mp3"))
-                {
-                    await e.Channel.SendMessage("File already exists! Playing " + video.Title);
-                    SendOnlineAudio(@".\music\" + video.Title.Replace(" ", "_") + ".mp3");
-                    return;
-                }
-                var msg = e.Channel.SendMessage("Download progressing...");
-                File.WriteAllBytes(@".\music\" + video.Title.Replace(" ", "_") + ".mp3", video.GetBytes());
 
-                await e.Channel.SendMessage("Done! Playing " + video.Title);
-                SendOnlineAudio(@".\music\" + video.Title.Replace(" ", "_") + ".mp3");
+                foreach (int resolution in resolutions)
+                {
+
+                    var video = videos.FirstOrDefault(v => v.Resolution == resolution);
+
+                    //If you can't find a video for the specific resolution, try next resolution
+                    if (video == null) continue;
+
+                    Console.WriteLine("Found video: " + video.Title + " with resolution: " + resolution);
+                    if (File.Exists(@".\music\" + video.Title.Replace(" ", "_") + ".mp3"))
+                    {
+                        await e.Channel.SendMessage("File already exists! Playing " + video.Title);
+                        SendOnlineAudio(@".\music\" + video.Title.Replace(" ", "_") + ".mp3");
+                        return;
+                    }
+                    var msg = e.Channel.SendMessage("Download progressing...");
+                    File.WriteAllBytes(@".\music\" + video.Title.Replace(" ", "_") + ".mp3", video.GetBytes());
+
+                    //Found video, break loop and play
+                    watch.Stop();
+                    await e.Channel.SendMessage("Done! Playing " + video.Title + "\nIt took " + watch.Elapsed.TotalSeconds + " seconds");
+                    SendOnlineAudio(@".\music\" + video.Title.Replace(" ", "_") + ".mp3");
+                    break;
+                }
             }
 
             /*
@@ -134,7 +149,6 @@ namespace Bot.Audio
         {
             playingSong = false;
             forceStop = true;
-            KillAllFFMPEG();
             Console.WriteLine("Stopped music bot");
         }
 
@@ -142,11 +156,13 @@ namespace Bot.Audio
         {
             var process = Process.Start(new ProcessStartInfo
             { // FFmpeg requires us to spawn a process and hook into its stdout, so we will create a Process
-                FileName = @"C:\Users\Kristian\Source\Repos\DiscordBot\ffmpeg.exe",
+                FileName = "ffmpeg.exe",
                 Arguments = $"-i " + pathOrUrl + " " + // Here we provide a list of arguments to feed into FFmpeg. -i means the location of the file/URL it will read from
-                            "-f s16le -ar 48000 -ac 2 pipe:1", // Next, we tell it to output 16-bit 48000Hz PCM, over 2 channels, to stdout.
+                            "-f s16le -ar 48000 -ac 2 pipe:1 -loglevel quiet", // Next, we tell it to output 16-bit 48000Hz PCM, over 2 channels, to stdout.
                 UseShellExecute = false,
-                RedirectStandardOutput = true // Capture the stdout of the process
+                RedirectStandardOutput = true, // Capture the stdout of the process
+                RedirectStandardError = false,
+                CreateNoWindow = true,
             });
             Thread.Sleep(2000); // Sleep for a few seconds to FFmpeg can start processing data.
 
@@ -168,8 +184,10 @@ namespace Bot.Audio
                 _vClient.Send(buffer, 0, byteCount); // Send our data to Discord
             }
             _vClient.Wait(); // Wait for the Voice Client to finish sending data, as ffMPEG may have already finished buffering out a song, and it is unsafe to return now.
-            process.Close();
+            process.Kill();
+            process.Dispose();
             forceStop = false;
+            Console.WriteLine("Successfully killed ffmpeg");
         }
 
         public void SendAudioWithNAudio(string filePath)
@@ -270,6 +288,7 @@ namespace Bot.Audio
 
             killFfmpeg.StartInfo = taskkillStartInfo;
             killFfmpeg.Start();
+
         }
 
     }
