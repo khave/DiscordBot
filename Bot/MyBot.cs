@@ -127,6 +127,8 @@ namespace Bot
             commands.Add(new MusicStop(this));
             commands.Add(new MusicPlay(this));
             commands.Add(new Roll(this));
+            commands.Add(new Volume(this));
+            commands.Add(new Skip(this));
             //new MusicPlay(this);
             new Test(this);
             audioCommands.Add(new Commands.AudioCommands.Hello());

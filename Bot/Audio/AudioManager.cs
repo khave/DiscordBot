@@ -11,6 +11,7 @@ using YoutubeExtractor;
 using NAudio.Wave;
 using VideoLibrary;
 using System.Net;
+using System.Collections.Generic;
 
 namespace Bot.Audio
 {
@@ -23,6 +24,8 @@ namespace Bot.Audio
         public static DiscordClient _client;
         private bool forceStop = false;
         private int[] resolutions = { 720, 480, 360, 240 };
+        private double volume = 1.0;
+        public List<string> queue = new List<string>();
 
         public AudioManager(MyBot myBot)
         {
@@ -32,6 +35,11 @@ namespace Bot.Audio
             {
                 x.Mode = AudioMode.Outgoing;
             });
+        }
+
+        public void setVolume(int volume)
+        {
+            this.volume = ((double) volume/100);
         }
 
         public async void play(CommandEventArgs e, User user, string url)
@@ -51,15 +59,15 @@ namespace Bot.Audio
             playFile(e, user, url);
         }
 
-        public async void joinVoiceChannel(CommandEventArgs e, User user)
+        public async void joinVoiceChannel(CommandEventArgs e)
         {
-            if (user.VoiceChannel == null)
+            if (e.User.VoiceChannel == null)
             {
                 await e.Channel.SendMessage("ERROR: You're not in a channel");
                 return;
             }
-
-            _vClient = await _client.GetService<AudioService>().Join(user.VoiceChannel);
+            
+            _vClient = await _client.GetService<AudioService>().Join(e.User.VoiceChannel);
         }
 
         public async void leaveVoiceChannel()
@@ -87,7 +95,7 @@ namespace Bot.Audio
                     if (File.Exists(@".\music\" + video.Title.Replace(" ", "_") + ".mp3"))
                     {
                         await e.Channel.SendMessage("File already exists! Playing " + video.Title);
-                        SendOnlineAudio(@".\music\" + video.Title.Replace(" ", "_") + ".mp3");
+                        //SendOnlineAudio(@".\music\" + video.Title.Replace(" ", "_") + ".mp3");
                         return;
                     }
                     var msg = e.Channel.SendMessage("Download progressing...");
@@ -96,48 +104,10 @@ namespace Bot.Audio
                     //Found video, break loop and play
                     watch.Stop();
                     await e.Channel.SendMessage("Done! Playing " + video.Title + "\nIt took " + watch.Elapsed.TotalSeconds + " seconds");
-                    SendOnlineAudio(@".\music\" + video.Title.Replace(" ", "_") + ".mp3");
+                    //SendOnlineAudio(@".\music\" + video.Title.Replace(" ", "_") + ".mp3");
                     break;
                 }
             }
-
-            /*
-            IEnumerable<VideoInfo> videoInfos = DownloadUrlResolver.GetDownloadUrls(url);
-
-            VideoInfo video = videoInfos
-    .Where(info => info.VideoType == VideoType.Mp4 && info.Resolution == 0)
-    .OrderByDescending(info => info.AudioBitrate).First();
-
-            string[] fileEntries = Directory.GetFiles(@".\music");
-            foreach (string fileName in fileEntries)
-            {
-                //File already exists
-                Console.WriteLine("Edit distance: " + Utils.Compute(Path.GetFileNameWithoutExtension(fileName), video.Title));
-                if (Utils.Compute(Path.GetFileNameWithoutExtension(fileName), video.Title) < 10)
-                {
-                    await e.Channel.SendMessage("File already exists! Playing audio file...");
-                    SendOnlineAudio(@".\music\" + Path.GetFileName(fileName));
-                    return;
-                }
-            }
-
-            if (video.RequiresDecryption)
-            {
-                DownloadUrlResolver.DecryptDownloadUrl(video);
-            }
-
-            var audioDownloader = new VideoDownloader(video, @".\music\" + video.Title.Replace(" ", "_") + ".mp3");
-
-            var msg = e.Channel.SendMessage("Download progressing...");
-
-            audioDownloader.DownloadFinished += async (sender, args) =>
-            {
-                await e.Channel.SendMessage("Done! Playing audio file...");
-                SendOnlineAudio(@".\music\" + video.Title.Replace(" ", "_") + ".mp3");
-            };
-            
-            audioDownloader.Execute();
-             */
         }
 
         public void pause()
@@ -152,27 +122,48 @@ namespace Bot.Audio
             Console.WriteLine("Stopped music bot");
         }
 
-        public void SendOnlineAudio(string pathOrUrl)
+        public async void SendOnlineAudio(CommandEventArgs e, string pathOrUrl)
         {
+            if (e.User.VoiceChannel == null)
+            {
+                await e.Channel.SendMessage("ERROR: You're not in a channel");
+                return;
+            }
+
+            _vClient = await _client.GetService<AudioService>().Join(e.User.VoiceChannel);
+
+            if (playingSong)
+            {
+                queue.Add(pathOrUrl);
+                await e.Channel.SendMessage("Added song to the queue! **[" + queue.IndexOf(pathOrUrl) + "]**");
+                return;
+            }
+            else
+            {
+                playingSong = true;
+            }
+
             var process = Process.Start(new ProcessStartInfo
             { // FFmpeg requires us to spawn a process and hook into its stdout, so we will create a Process
-                FileName = "ffmpeg.exe",
-                Arguments = $"-i " + pathOrUrl + " " + // Here we provide a list of arguments to feed into FFmpeg. -i means the location of the file/URL it will read from
-                            "-f s16le -ar 48000 -ac 2 pipe:1 -loglevel quiet", // Next, we tell it to output 16-bit 48000Hz PCM, over 2 channels, to stdout.
+                FileName = "cmd.exe",
+                Arguments = "/C youtube-dl.exe -f 140 -o - " + pathOrUrl + " | ffmpeg.exe -i pipe:0 -f s16le -ar 48000 -ac 2 pipe:1 -af \"volume=" + volume + "\"", // Next, we tell it to output 16-bit 48000Hz PCM, over 2 channels, to stdout.
                 UseShellExecute = false,
                 RedirectStandardOutput = true, // Capture the stdout of the process
                 RedirectStandardError = false,
-                CreateNoWindow = true,
             });
-            Thread.Sleep(2000); // Sleep for a few seconds to FFmpeg can start processing data.
+
+            Console.WriteLine("Reached code");
+
+
+            //Thread.Sleep(2000); // Sleep for a few seconds to FFmpeg can start processing data.
 
             int blockSize = 3840; // The size of bytes to read per frame; 1920 for mono
             byte[] buffer = new byte[blockSize];
-            int byteCount;
-            pause();
+            int byteCount;       
 
             while (true && !forceStop) // Loop forever, so data will always be read
             {
+
                 if (!playingSong) continue;
 
                 byteCount = process.StandardOutput.BaseStream // Access the underlying MemoryStream from the stdout of FFmpeg
@@ -184,95 +175,26 @@ namespace Bot.Audio
                 _vClient.Send(buffer, 0, byteCount); // Send our data to Discord
             }
             _vClient.Wait(); // Wait for the Voice Client to finish sending data, as ffMPEG may have already finished buffering out a song, and it is unsafe to return now.
-            process.Kill();
-            process.Dispose();
-            forceStop = false;
-            Console.WriteLine("Successfully killed ffmpeg");
-        }
-
-        public void SendAudioWithNAudio(string filePath)
-        {
-            var channelCount = _client.GetService<AudioService>().Config.Channels; // Get the number of AudioChannels our AudioService has been configured to use.
-            var OutFormat = new WaveFormat(48000, 16, channelCount); // Create a new Output Format, using the spec that Discord will accept, and with the number of channels that our client supports.
-            using (var MP3Reader = new Mp3FileReader(filePath)) // Create a new Disposable MP3FileReader, to read audio from the filePath parameter
-            using (var resampler = new MediaFoundationResampler(MP3Reader, OutFormat)) // Create a Disposable Resampler, which will convert the read MP3 data to PCM, using our Output Format
+            if (queue.Count != 0)
             {
-                resampler.ResamplerQuality = 60; // Set the quality of the resampler to 60, the highest quality
-                int blockSize = OutFormat.AverageBytesPerSecond / 50; // Establish the size of our AudioBuffer
-                byte[] buffer = new byte[blockSize];
-                int byteCount;
-
-                playingSong = true;
-
-                while (playingSong == true && (byteCount = resampler.Read(buffer, 0, blockSize)) > 0) // Read audio into our buffer, and keep a loop open while data is present
+                string video = queue.ElementAt(0);
+                queue.RemoveAt(0);
+                Console.WriteLine(video);
+                SendOnlineAudio(e, video);
+                await e.Channel.SendMessage("Playing next song in queue...");
+            }
+            else
+            {
+                if (!process.HasExited)
                 {
-                    if (byteCount < blockSize)
-                    {
-                        // Incomplete Frame
-                        for (int i = byteCount; i < blockSize; i++)
-                            buffer[i] = 0;
-                    }
-                    _vClient.Send(buffer, 0, blockSize); // Send the buffer to Discord
+                    process.Kill();
+                    process.Dispose();
                 }
+                forceStop = false;
+                playingSong = false;
+                Console.WriteLine("Successfully killed ffmpeg");
+                leaveVoiceChannel();
             }
-
-        }
-
-
-        public static async Task SendAudio(string filepath, Channel voiceChannel)
-        {
-            // When we use the !play command, it'll start this method
-
-            // The comment below is how you'd find the first voice channel on the server "Somewhere"
-            //var voiceChannel = _client.FindServers("Somewhere").FirstOrDefault().VoiceChannels.FirstOrDefault();
-            // Since we already know the voice channel, we don't need that.
-            // So... join the voice channel:
-            _vClient = await _client.GetService<AudioService>().Join(voiceChannel);
-
-            // Simple try and catch.
-            try
-            {
-
-                var channelCount = _client.GetService<AudioService>().Config.Channels; // Get the number of AudioChannels our AudioService has been configured to use.
-                var OutFormat = new WaveFormat(48000, 16, channelCount); // Create a new Output Format, using the spec that Discord will accept, and with the number of channels that our client supports.
-
-                using (var MP3Reader = new Mp3FileReader(filepath)) // Create a new Disposable MP3FileReader, to read audio from the filePath parameter
-                using (var resampler = new MediaFoundationResampler(MP3Reader, OutFormat)) // Create a Disposable Resampler, which will convert the read MP3 data to PCM, using our Output Format
-                {
-                    resampler.ResamplerQuality = 60; // Set the quality of the resampler to 60, the highest quality
-                    int blockSize = OutFormat.AverageBytesPerSecond / 50; // Establish the size of our AudioBuffer
-                    byte[] buffer = new byte[blockSize];
-                    int byteCount;
-                    // Add in the "&& playingSong" so that it only plays while true. For our cheesy skip command.
-                    // AGAIN
-                    // WARNING
-                    // YOU NEED
-                    // vvvvvvvvvvvvvvv
-                    // opus.dll
-                    // libsodium.dll
-                    // ^^^^^^^^^^^^^^^
-                    // If you do not have these, this will not work.
-                    playingSong = true;
-
-                    while (playingSong == true && (byteCount = resampler.Read(buffer, 0, blockSize)) > 0 && playingSong) // Read audio into our buffer, and keep a loop open while data is present
-                    {
-                        if (byteCount < blockSize)
-                        {
-                            // Incomplete Frame
-                            for (int i = byteCount; i < blockSize; i++)
-                                buffer[i] = 0;
-                        }
-
-                        _vClient.Send(buffer, 0, blockSize); // Send the buffer to Discord
-                    }
-                    await _vClient.Disconnect();
-                }
-            }
-            catch
-            {
-                System.Console.WriteLine("Something went wrong. :(");
-            }
-            await _vClient.Disconnect();
         }
 
         private void KillAllFFMPEG()
@@ -281,7 +203,7 @@ namespace Bot.Audio
             ProcessStartInfo taskkillStartInfo = new ProcessStartInfo
             {
                 FileName = "taskkill",
-                Arguments = "/F /IM ffmpeg.exe",
+                Arguments = "/F /IM cmd.exe",
                 UseShellExecute = false,
                 CreateNoWindow = true
             };

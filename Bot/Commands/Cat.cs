@@ -22,12 +22,18 @@ namespace Bot.Commands
         {
             using (var client = new WebClient())
             {
-                e.Channel.SendMessage("Finding random cat image...");
-                client.DownloadFile("http://thecatapi.com/api/images/get?format=src&type=png", @".\cat.png");
-                await e.Channel.SendFile(@".\cat.png");
-                if (File.Exists(@".\cat.png"))
+                await e.Channel.SendMessage("Finding random cat image...");
+                try {
+                    client.DownloadFile("http://thecatapi.com/api/images/get?format=src&type=png", @".\cat.png");
+                    await e.Channel.SendFile(@".\cat.png");
+                    if (File.Exists(@".\cat.png"))
+                    {
+                        File.Delete(@".\cat.png");
+                    }
+                }
+                catch (Exception ex)
                 {
-                    File.Delete(@".\cat.png");
+                    await e.Channel.SendMessage("An error occured :(");
                 }
             }
         }

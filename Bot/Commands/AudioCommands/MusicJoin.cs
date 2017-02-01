@@ -21,7 +21,7 @@ namespace Bot.Commands.AudioCommands
         public override void onCommand(CommandEventArgs e, DiscordClient discord, string[] args)
         {
             e.Channel.SendMessage("Connecting to YouTubeExtractor...");
-            myBot.audioManager.joinVoiceChannel(e, e.User);
+            //myBot.audioManager.joinVoiceChannel(e, e.User);
         }
     }
 }

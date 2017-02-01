@@ -4,6 +4,9 @@ using System.Net;
 using System.Text.RegularExpressions;
 using YoutubeSearch;
 using Discord;
+using YoutubeExtractor;
+using System.Collections.Generic;
+using RestSharp.Extensions.MonoHttp;
 
 namespace Bot.Commands.AudioCommands
 {
@@ -17,33 +20,6 @@ namespace Bot.Commands.AudioCommands
         {
             this.myBot = myBot;
             this.webClient = new WebClient();
-            //onCommand();
-        }
-
-        public void onCommand()
-        {
-            var items = new VideoSearch();
-
-            myBot.discord.GetService<CommandService>().CreateCommand("music play").Alias(new string[] { "play", "m play" })
-                .Parameter("url", ParameterType.Unparsed)
-                .Do(async (e) =>
-            {
-                e.Channel.SendMessage("Searching for first video...");
-                string query = e.GetArg("url").Replace("_", " ");
-                myBot.audioManager.play(e, e.User, getVideoUrl(query));
-                int pages = 1;
-
-                //Code gods forgive me pls
-                /*
-                foreach (var item in items.SearchQuery(query, pages))
-                {
-                    string url = item.Url;
-                    myBot.audioManager.play(e, e.User, url);
-                    Console.WriteLine(item.Title);
-                    break;
-                }
-                */
-            });
         }
 
         public string getVideoUrl(string searchTerm)
@@ -55,12 +31,54 @@ namespace Bot.Commands.AudioCommands
             return url;
         }
 
+        public bool isYoutubeUrl(string url)
+        {
+            if (url.Contains("www.youtube"))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public string correctUrl(string url)
+        {
+            return url.Remove(4);
+        }
+
+        public static string GetTitle(string url)
+        {
+            var api = $"http://youtube.com/get_video_info?video_id={GetArgs(url, "v", '?')}";
+            return GetArgs(new WebClient().DownloadString(api), "title", '&');
+        }
+
+        private static string GetArgs(string args, string key, char query)
+        {
+            var iqs = args.IndexOf(query);
+            return iqs == -1
+                ? string.Empty
+                : HttpUtility.ParseQueryString(iqs < args.Length - 1
+                    ? args.Substring(iqs + 1) : string.Empty)[key];
+        }
+
         public override void onCommand(CommandEventArgs e, DiscordClient discord, string[] args)
         {
-            e.Channel.SendMessage("Searching for first video...");
-            string url = String.Join(" ", args);
-            string videoUrl = getVideoUrl(url);
-            myBot.audioManager.play(e, e.User, videoUrl);
+            string url = String.Join(" ", args);            
+
+            if (!isYoutubeUrl(url))
+            {
+                //e.Channel.SendMessage("Searching for first video...");
+                string videoUrl = getVideoUrl(url);
+                e.Channel.SendMessage("Found video: " + GetTitle(videoUrl));
+                myBot.audioManager.SendOnlineAudio(e, videoUrl);
+            }
+            else
+            {
+                e.Channel.SendMessage("Playing " + GetTitle(url));
+                myBot.audioManager.SendOnlineAudio(e, correctUrl(url));
+            }
+
+
+            //myBot.audioManager.play(e, e.User, videoUrl);
         }
     }
 }
