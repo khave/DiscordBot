@@ -102,6 +102,7 @@
     <Compile Include="Audio\AudioManager.cs" />
     <Compile Include="BotCommand.cs" />
     <Compile Include="CleverBotScript.cs" />
+    <Compile Include="Commands\Anime.cs" />
     <Compile Include="Commands\AudioCommands\AudioCommand.cs" />
     <Compile Include="Commands\AudioCommands\Hello.cs" />
     <Compile Include="Commands\AudioCommands\MusicDownload.cs" />
@@ -110,6 +111,7 @@
     <Compile Include="Commands\AudioCommands\MusicPlay.cs" />
     <Compile Include="Commands\AudioCommands\MusicStop.cs" />
     <Compile Include="Commands\Cat.cs" />
+    <Compile Include="Commands\GoogleSearch.cs" />
     <Compile Include="Commands\Hello.cs" />
     <Compile Include="Commands\Help.cs" />
     <Compile Include="Commands\Roll.cs" />

@@ -104,7 +104,7 @@ namespace Bot
 
             //Register scripts
             CleverBotScript cleverBotScript = new CleverBotScript(this);
-            //MessageReceived messageReceived = new MessageReceived(this);
+            MessageReceived messageReceived = new MessageReceived(this);
 
 
             //discord.SetGame(new Game("use !help for commands"));
@@ -112,6 +112,7 @@ namespace Bot
             discord.ExecuteAndWait(async () =>
            {
                await discord.Connect("MjcxOTg3MDQ1MTAwOTQ1NDA4.C21F9Q.9OC5Lt1uMKyLVPoqhL-Rzp10mOo", TokenType.Bot);
+               discord.SetGame("Use !help for commands");
            });
         }
 
@@ -129,12 +130,16 @@ namespace Bot
             commands.Add(new Roll(this));
             commands.Add(new Volume(this));
             commands.Add(new Skip(this));
+            commands.Add(new Anime());
+            commands.Add(new GoogleSearch());
             //new MusicPlay(this);
             new Test(this);
             audioCommands.Add(new Commands.AudioCommands.Hello());
 
             //Responses
             //TODO: Load responses from either txt-file or database
+            responses.Add(new Response("khave", "test", 100, "Test response!"));
+            responses.Add(new Response("Mooshii", "porn", 100, "Where?!"));
         }
 
         private void save()

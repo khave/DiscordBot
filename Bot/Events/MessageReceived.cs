@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Bot.Responses;
+using Cleverbot.Net;
+using Discord;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,42 +22,28 @@ namespace Bot.Events
 
         public void messageReceived()
         {
-            /*
             myBot.discord.MessageReceived += async (s, e) =>
             {
                 if (!e.Message.IsAuthor)
                 {
-
-                    if (e.Message.IsMentioningMe() || e.Message.Text.StartsWith("!"))
+                    foreach (Response response in myBot.responses)
                     {
-                        string msg = e.Message.Text.Replace("@" + myBot.discord.CurrentUser.Name + " ", "").Replace("!", "");
-                        foreach (BotCommand cmd in myBot.commands)
-                        {    
-                            //Check aliases
-                            if(cmd.getAliases() != null)
+                        if (e.User.Name == response.getUser() && Utils.getRandInt(0, 100) < response.getChance())
+                        {
+                            if(response.getMention() == "")
                             {
-                                foreach(string alias in cmd.getAliases())
-                                {
-                                    if (alias.StartsWith(cmd.getCommand()))
-                                    {
-                                        string[] args = e.Message.Text.Replace(cmd.getCommand(), "").Replace("!", "").Split(null);
-                                        cmd.onCommand(e, myBot.discord, args);
-                                        return;
-                                    }
-                                }
+                                await e.Channel.SendMessage(e.User.Mention + " " + response.getResponse());
                             }
-
-                            if (msg.StartsWith(cmd.getCommand()))
+                            else
+                            if (e.Message.Text == response.getMention() || e.Message.Text.ToLower().Contains(response.getMention().ToLower()))
                             {
-                                cmd.onCommand(e, myBot.discord, new string[] { });
-                                await e.Channel.SendMessage("test");
+                                await e.Channel.SendMessage(e.User.Mention + " " + response.getResponse());
                             }
                         }
                     }
                 }
             };
         }
-        */
-        }
+
     }
 }

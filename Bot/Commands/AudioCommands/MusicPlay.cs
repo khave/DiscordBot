@@ -68,13 +68,13 @@ namespace Bot.Commands.AudioCommands
             {
                 //e.Channel.SendMessage("Searching for first video...");
                 string videoUrl = getVideoUrl(url);
-                e.Channel.SendMessage("Found video: " + GetTitle(videoUrl));
+                e.Channel.SendMessage("Looking for video...");
                 myBot.audioManager.SendOnlineAudio(e, videoUrl);
             }
             else
             {
                 e.Channel.SendMessage("Playing " + GetTitle(url));
-                myBot.audioManager.SendOnlineAudio(e, correctUrl(url));
+                myBot.audioManager.SendOnlineAudio(e, url);
             }
 
 

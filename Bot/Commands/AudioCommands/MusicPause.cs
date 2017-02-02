@@ -21,7 +21,7 @@ namespace Bot.Commands.AudioCommands
         public override void onCommand(CommandEventArgs e, DiscordClient discord, string[] args)
         {
             e.Channel.SendMessage("Pausing");
-            myBot.audioManager.pause();
+            //myBot.audioManager.pause();
         }
     }
 }

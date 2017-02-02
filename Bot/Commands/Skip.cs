@@ -21,7 +21,7 @@ namespace Bot.Commands
         public override async void onCommand(CommandEventArgs e, DiscordClient discord, string[] args)
         {
             await e.Channel.SendMessage("Skipping current song...");
-            await myBot.audioManager.stop();
+            myBot.audioManager.skip(e);
         }
     }
 }
