@@ -77,31 +77,6 @@ namespace Bot
                 }
           }
 
-
-
-
-
-            //Custom command system
-            /*
-            discord.MessageReceived += async (s, e) =>
-            {
-                if (!e.Message.IsAuthor)
-                {
-                    string[] args = e.Message.Text.Split(null);
-                    string msg = e.Message.Text.Replace("@" + discord.CurrentUser.Name + " ", "");
-                    foreach (BotCommand cmd in this.commands)
-                    {
-                        await e.Channel.SendIsTyping();
-                        if (msg == cmd.getCommand())
-                        {
-                            cmd.onCommand(e, discord, args);
-                        }
-                    }
-
-                }
-            };
-             */
-
             //Register scripts
             CleverBotScript cleverBotScript = new CleverBotScript(this);
             MessageReceived messageReceived = new MessageReceived(this);
