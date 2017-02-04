@@ -19,14 +19,14 @@ namespace Bot.Commands
             this.myBot = myBot;
         }
 
-        public override void onCommand(CommandEventArgs e, DiscordClient discord, string[] args)
+        public override async void onCommand(CommandEventArgs e, DiscordClient discord, string[] args)
         {
             int diceNum;
             try
             {
                 diceNum = Convert.ToInt32(args[0]);
                 int rInt = r.Next(1, diceNum + 1); //for ints
-                if(args.Length > 1) //test
+                if (args.Length > 1) //test
                 {
                     int times = Convert.ToInt32(args[1]);
                     int result = rInt;
@@ -37,14 +37,18 @@ namespace Bot.Commands
                         result += rInt;
                         output += " + " + rInt;
                     }
-                    e.Channel.SendMessage(e.User.Mention + output + " = " + result);
+                    await e.Channel.SendMessage(e.User.Mention + output + " = " + result);
                     return;
                 }
-                 e.Channel.SendMessage(e.User.Mention + " Rolled D" + diceNum + ": " + rInt);
+                await e.Channel.SendMessage(e.User.Mention + " Rolled D" + diceNum + ": " + rInt);
+                if (diceNum == 20 && rInt == 20)
+                {
+                    await e.Channel.SendFile(@".\cat.png");
+                }
             }
             catch (FormatException ex)
             {
-                e.Channel.SendMessage("That's not a number!");
+                await e.Channel.SendMessage("That's not a number!");
             }
         }
     }
