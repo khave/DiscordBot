@@ -43,7 +43,7 @@ namespace Bot.Commands
                 await e.Channel.SendMessage(e.User.Mention + " Rolled D" + diceNum + ": " + rInt);
                 if (diceNum == 20 && rInt == 20)
                 {
-                    await e.Channel.SendFile(@".\cat.png");
+                    await e.Channel.SendFile(@".\roll.png");
                 }
             }
             catch (FormatException ex)
