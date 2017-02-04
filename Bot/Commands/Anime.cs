@@ -9,6 +9,10 @@ using System.Xml;
 using System.Net;
 using System.Net.Http;
 using System.IO;
+using Bot.NadekoBot;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
+using System.Threading;
 
 namespace Bot.Commands
 {
@@ -28,14 +32,15 @@ namespace Bot.Commands
         public override async void onCommand(CommandEventArgs e, DiscordClient discord, string[] args)
         {
             string tag;
-            if (args[0] == "")
+            if (args.Length < 1)
             {
-                tag = tags[Utils.getRandInt(0, tags.Length-1)];
+                tag = tags[Utils.getRandInt(0, tags.Length - 1)];
             }
             else {
                 tag = String.Join("_", args);
             }
 
+           
             var url = await searchAnime(tag).ConfigureAwait(false);
             await e.Channel.SendMessage("Finding anime image...");
 
@@ -60,11 +65,14 @@ namespace Bot.Commands
                     }
                 }
             }
+            
         }
 
+   
         //Taken from NadekoBot
         //LINK: https://github.com/Kwoth/NadekoBot
         //Thanks to Kwoth
+        //TODO: Add manga search
 
         public async Task<string> searchAnime(string tag)
         {

@@ -20,13 +20,35 @@ namespace Bot.Commands
 
         public override void onCommand(CommandEventArgs e, DiscordClient discord, string[] args)
         {
-            //TODO: Make help output string with same amount of spaces
             string complete = "```";
             foreach(BotCommand cmd in myBot.commands)
             {
-                complete += "\n" + cmd.getCommand() + "      -       " + cmd.getUsage();
+                complete += "\n" + calculateSpaces(cmd);
             }
             e.Channel.SendMessage(complete + "```");
+        }
+
+
+        public string calculateSpaces(BotCommand cmd)
+        {
+            int cmdLength = cmd.getCommand().Length;
+            int usageLength = cmd.getUsage().Length;
+            int spaceforcmdLength = 30 - cmdLength;
+            int spaceforusageLength = 30 - usageLength;
+            string spaces = cmd.getCommand() + "";
+            for(int i = 1; i < spaceforcmdLength; i++)
+            {
+                spaces += " ";
+            }
+
+            spaces += " - ";
+
+            for (int i = 1; i < spaceforusageLength; i++)
+            {
+                spaces += " ";
+            }
+            spaces += cmd.getUsage();
+            return spaces;
         }
     }
 }

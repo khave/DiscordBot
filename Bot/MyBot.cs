@@ -107,6 +107,8 @@ namespace Bot
             commands.Add(new Skip(this));
             commands.Add(new Anime());
             commands.Add(new GoogleSearch());
+            commands.Add(new nsfw());
+            commands.Add(new Info());
             //new MusicPlay(this);
             new Test(this);
             audioCommands.Add(new Commands.AudioCommands.Hello());
@@ -115,6 +117,10 @@ namespace Bot
             //TODO: Load responses from either txt-file or database
             responses.Add(new Response("khave", "test", 100, "Test response!"));
             responses.Add(new Response("Mooshii", "porn", 100, "Where?!"));
+            responses.Add(new Response("Creeperskull", "Aye", 25, "Aye lmao"));
+            responses.Add(new Response("Nickimus", "!hello", 100, "pleb"));
+            responses.Add(new Response("Ivanovich Koslov", "Heal", 10, "Heals4Days"));
+            responses.Add(new Response("Sadenar", "feck", 100, "fuck*"));
         }
 
         private void save()
