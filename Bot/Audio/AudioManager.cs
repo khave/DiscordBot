@@ -84,13 +84,10 @@ joinVoiceChannel(CommandEventArgs e)
 
             if (queue.Count != 0)
             {
-                isSkipping = true;
                 stop();
                 string video = queue.ElementAt(0);
                 queue.RemoveAt(0);
-                Thread.Sleep(1000); //Sleep for a sec so it can stop music
                 e.Channel.SendMessage("Playing next song in queue...");
-                await Task.Run(() => SendOnlineAudio(e, video));
             }
         }
 
@@ -171,14 +168,13 @@ joinVoiceChannel(CommandEventArgs e)
             playingSong = false;
             Console.WriteLine("Reached end of function");
             //Check if there are songs in the queue
-            if (queue.Count != 0 && isSkipping)
+            if (queue.Count != 0)
             {
-                isSkipping = false;
+                //TODO: Make this do once, not twice
                 stop();
                 string video = queue.ElementAt(0);
                 queue.RemoveAt(0);
                 Thread.Sleep(1000); //Sleep for a sec so it can stop music
-                e.Channel.SendMessage("Playing next song in queue...");
                 await Task.Run(() => SendOnlineAudio(e, video));
             }
             //leaveVoiceChannel();
