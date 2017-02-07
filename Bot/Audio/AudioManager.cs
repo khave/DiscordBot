@@ -26,6 +26,7 @@ namespace Bot.Audio
         private int[] resolutions = { 720, 480, 360, 240 };
         private double volume = 1.0;
         public List<string> queue = new List<string>();
+        private Boolean isSkipping = false;
 
         public AudioManager(MyBot myBot)
         {
@@ -83,6 +84,7 @@ joinVoiceChannel(CommandEventArgs e)
 
             if (queue.Count != 0)
             {
+                isSkipping = true;
                 stop();
                 string video = queue.ElementAt(0);
                 queue.RemoveAt(0);
@@ -169,8 +171,9 @@ joinVoiceChannel(CommandEventArgs e)
             playingSong = false;
             Console.WriteLine("Reached end of function");
             //Check if there are songs in the queue
-            if (queue.Count != 0)
+            if (queue.Count != 0 && isSkipping)
             {
+                isSkipping = false;
                 stop();
                 string video = queue.ElementAt(0);
                 queue.RemoveAt(0);
