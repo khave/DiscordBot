@@ -109,6 +109,7 @@ namespace Bot
             commands.Add(new GoogleSearch());
             commands.Add(new nsfw());
             commands.Add(new Info());
+            commands.Add(new DeleteMessages());
             //new MusicPlay(this);
             new Test(this);
             audioCommands.Add(new Commands.AudioCommands.Hello());

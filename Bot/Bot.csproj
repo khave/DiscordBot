@@ -111,6 +111,7 @@
     <Compile Include="Commands\AudioCommands\MusicPlay.cs" />
     <Compile Include="Commands\AudioCommands\MusicStop.cs" />
     <Compile Include="Commands\Cat.cs" />
+    <Compile Include="Commands\DeleteMessages.cs" />
     <Compile Include="Commands\GoogleSearch.cs" />
     <Compile Include="Commands\Hello.cs" />
     <Compile Include="Commands\Help.cs" />

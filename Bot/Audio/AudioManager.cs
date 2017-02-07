@@ -42,23 +42,6 @@ namespace Bot.Audio
             this.volume = ((double) volume/100);
         }
 
-        public async void play(CommandEventArgs e, User user, string url)
-        {
-            if (user.VoiceChannel == null)
-            {
-                await e.Channel.SendMessage("ERROR: You're not in a channel");
-                return;
-            }
-            _vClient = await _client.GetService<AudioService>().Join(user.VoiceChannel);
-
-            if (playingSong)
-            {
-                await stop();
-            }
-
-            playFile(e, user, url);
-        }
-
         public async 
         Task
 joinVoiceChannel(CommandEventArgs e)
@@ -83,43 +66,8 @@ joinVoiceChannel(CommandEventArgs e)
             await _vClient.Disconnect();
             _vClient = null;
         }
-        
 
-        public async void playFile(CommandEventArgs e, User user, string url)
-        {
-            using (var cli = Client.For(new YouTube()))
-            {
-                var watch = System.Diagnostics.Stopwatch.StartNew();
-                var videos = cli.GetAllVideos(url);
-
-                foreach (int resolution in resolutions)
-                {
-
-                    var video = videos.FirstOrDefault(v => v.Resolution == resolution);
-
-                    //If you can't find a video for the specific resolution, try next resolution
-                    if (video == null) continue;
-
-                    Console.WriteLine("Found video: " + video.Title + " with resolution: " + resolution);
-                    if (File.Exists(@".\music\" + video.Title.Replace(" ", "_") + ".mp3"))
-                    {
-                        await e.Channel.SendMessage("File already exists! Playing " + video.Title);
-                        //SendOnlineAudio(@".\music\" + video.Title.Replace(" ", "_") + ".mp3");
-                        return;
-                    }
-                    var msg = e.Channel.SendMessage("Download progressing...");
-                    File.WriteAllBytes(@".\music\" + video.Title.Replace(" ", "_") + ".mp3", video.GetBytes());
-
-                    //Found video, break loop and play
-                    watch.Stop();
-                    await e.Channel.SendMessage("Done! Playing " + video.Title + "\nIt took " + watch.Elapsed.TotalSeconds + " seconds");
-                    //SendOnlineAudio(@".\music\" + video.Title.Replace(" ", "_") + ".mp3");
-                    break;
-                }
-            }
-        }
-
-        public async Task stop()
+        public void stop()
         {
             playingSong = false;
             Console.WriteLine("Stopping music bot...");
@@ -127,39 +75,38 @@ joinVoiceChannel(CommandEventArgs e)
 
         public async void skip(CommandEventArgs e)
         {
+            if (!queue.Any())
+            {
+                e.Channel.SendMessage("No songs in queue!");
+                return;
+            }
+
             if (queue.Count != 0)
             {
-                await stop();
-                //Sleep for a second to stop any audio still playing
-                Thread.Sleep(1000);
+                stop();
                 string video = queue.ElementAt(0);
                 queue.RemoveAt(0);
-                Thread.Sleep(1000);
-                await e.Channel.SendMessage("Playing next song in queue...");
-                SendOnlineAudio(e, video);
-            }
-            else
-            {
-                await e.Channel.SendMessage("No more songs in queue!");
-                await stop();
+                Thread.Sleep(1000); //Sleep for a sec so it can stop music
+                e.Channel.SendMessage("Playing next song in queue...");
+                await Task.Run(() => SendOnlineAudio(e, video));
             }
         }
 
         public async void SendOnlineAudio(CommandEventArgs e, string pathOrUrl)
-        {
+        {   
             await joinVoiceChannel(e);
             Console.WriteLine("Joined voice");
 
-            if(_vClient == null)
+            if (_vClient == null)
             {
-                await e.Channel.SendMessage("You are not in a voice channel!");
+                e.Channel.SendMessage("You are not in a voice channel!");
                 return;
             }
 
             if (playingSong)
             {
                 queue.Add(pathOrUrl);
-                await e.Channel.SendMessage("Added song to the queue! **[" + queue.IndexOf(pathOrUrl) + "]**");
+                e.Channel.SendMessage("Added song to the queue! **[" + queue.IndexOf(pathOrUrl) + "]**");
                 return;
             }
             else
@@ -168,7 +115,7 @@ joinVoiceChannel(CommandEventArgs e)
             }
 
             Console.WriteLine("Spawned process");
-            
+
             var process = Process.Start(new ProcessStartInfo
             { // FFmpeg requires us to spawn a process and hook into its stdout, so we will create a Process
                 FileName = "cmd.exe",
@@ -178,7 +125,7 @@ joinVoiceChannel(CommandEventArgs e)
                 RedirectStandardError = false,
             });
 
-            //Thread.Sleep(2000); // Sleep for a few seconds to FFmpeg can start processing data.
+            //Thread.Sleep(1000); // Sleep for a few seconds to FFmpeg can start processing data.
 
             int blockSize = 3840; // The size of bytes to read per frame; 1920 for mono
             byte[] buffer = new byte[blockSize];
@@ -196,12 +143,24 @@ joinVoiceChannel(CommandEventArgs e)
                 if (byteCount == 0) // FFmpeg did not output anything
                     break; // Break out of the while(true) loop, since there was nothing to read.
 
-                _vClient.Send(buffer, 0, byteCount); // Send our data to Discord
+                try {
+                    _vClient.Send(buffer, 0, byteCount); // Send our data to Discord
+                }catch(OperationCanceledException ex)
+                {
+                    Console.WriteLine("Operation cancelled!");
+                    break;
+                }
             }
+
             Console.WriteLine("Stopped sending audio");
 
-            _vClient.Wait(); // Wait for the Voice Client to finish sending data, as ffMPEG may have already finished buffering out a song, and it is unsafe to return now.
-            _vClient.Clear();
+            try {
+                _vClient.Wait(); // Wait for the Voice Client to finish sending data, as ffMPEG may have already finished buffering out a song, and it is unsafe to return now.
+                _vClient.Clear();
+            }catch(OperationCanceledException ex)
+            {
+                Console.WriteLine("Operation cancelled at waiting");
+            }
             if (!process.HasExited)
             {
                 process.Kill();
@@ -209,6 +168,16 @@ joinVoiceChannel(CommandEventArgs e)
             }
             playingSong = false;
             Console.WriteLine("Reached end of function");
+            //Check if there are songs in the queue
+            if (queue.Count != 0)
+            {
+                stop();
+                string video = queue.ElementAt(0);
+                queue.RemoveAt(0);
+                Thread.Sleep(1000); //Sleep for a sec so it can stop music
+                e.Channel.SendMessage("Playing next song in queue...");
+                await Task.Run(() => SendOnlineAudio(e, video));
+            }
             //leaveVoiceChannel();
         }
 

@@ -22,7 +22,7 @@ namespace Bot.Commands.AudioCommands
         public override async void onCommand(CommandEventArgs e, DiscordClient discord, string[] args)
         {
             e.Channel.SendMessage("Stopping music...");
-            await myBot.audioManager.stop();
+            myBot.audioManager.stop();
             Thread.Sleep(1000); // Sleep for a sec so it can leave voice
             myBot.audioManager.leaveVoiceChannel();
         }
