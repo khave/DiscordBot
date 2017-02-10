@@ -22,6 +22,7 @@ namespace Bot
         public List<AudioCommand> audioCommands = new List<AudioCommand>();
         public List<Response> responses = new List<Response>();
         public AudioManager audioManager;
+        public bool isTesting = false;
 
         public MyBot()
         {
@@ -52,6 +53,12 @@ namespace Bot
                 {
                     commands.CreateCommand(cmd.getCommand()).Description(cmd.getUsage()).Parameter("arg", ParameterType.Unparsed).Do(async (e) =>
                     {
+                        if (isInTestMode(e))
+                        {
+                            await e.Channel.SendMessage("The bot is currently undergoing serious changes! Please try again later");
+                            return;
+                        }
+
                         if (cmd.requiresAdmin() && !hasAdmin(e))
                         {
                             await e.Channel.SendMessage("That is an admin command, and you are not admin!");
@@ -65,6 +72,12 @@ namespace Bot
                 else {
                     commands.CreateCommand(cmd.getCommand()).Description(cmd.getUsage()).Alias(cmd.getAliases()).Parameter("arg", ParameterType.Unparsed).Do(async (e) =>
                     {
+                        if (isInTestMode(e))
+                        {
+                            await e.Channel.SendMessage("The bot is currently undergoing serious changes! Please try again later");
+                            return;
+                        }
+
                         if (cmd.requiresAdmin() && !hasAdmin(e))
                         {
                             await e.Channel.SendMessage("That is an admin command, and you are not admin!");
@@ -142,6 +155,11 @@ namespace Bot
         public bool hasAdmin(CommandEventArgs e)
         {
             return e.User.HasRole(e.Server.FindRoles("BOT MASTERS").First()) || e.User.HasRole(e.Server.FindRoles("Generals").First()) || e.User.Name == "khave";
+        }
+
+        public bool isInTestMode(CommandEventArgs e)
+        {
+            return isTesting && e.User.Name != "khave";
         }
     }
 }

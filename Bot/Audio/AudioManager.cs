@@ -20,13 +20,14 @@ namespace Bot.Audio
 
         MyBot myBot;
         public static IAudioClient _vClient;
-        private static bool playingSong = false;
+        private bool playingSong = false;
         public static DiscordClient _client;
         private bool forceStop = false;
         private int[] resolutions = { 720, 480, 360, 240 };
         private double volume = 1.0;
-        public List<string> queue = new List<string>();
-        private Boolean isSkipping = false;
+        public Queue<string> queue = new Queue<string>();
+        private bool isSkipping = false;
+        Task currentPlayTask;
 
         public AudioManager(MyBot myBot)
         {
@@ -76,22 +77,26 @@ joinVoiceChannel(CommandEventArgs e)
 
         public async void skip(CommandEventArgs e)
         {
+            stop();
+            /*
             if (!queue.Any())
             {
-                e.Channel.SendMessage("No songs in queue!");
+                await e.Channel.SendMessage("No songs in queue!");
                 return;
             }
-
-            if (queue.Count != 0)
+            stop();
+            string video = queue.First();
+            queue.Dequeue();
+            Thread.Sleep(1000); //Sleep for a sec so it can stop music
+            await e.Channel.SendMessage("Playing next song in queue...");
+            foreach(string vid in queue)
             {
-                stop();
-                string video = queue.ElementAt(0);
-                queue.RemoveAt(0);
-                Thread.Sleep(1000); //Sleep for a sec so it can stop music
-                e.Channel.SendMessage("Playing next song in queue...");
-                await Task.Run(() => SendOnlineAudio(e, video));
+                await e.Channel.SendMessage("\n"+vid);
             }
+            await Task.Run(() => SendOnlineAudio(e, video));
+            */
         }
+
 
         public async void SendOnlineAudio(CommandEventArgs e, string pathOrUrl)
         {   
@@ -100,14 +105,14 @@ joinVoiceChannel(CommandEventArgs e)
 
             if (_vClient == null)
             {
-                e.Channel.SendMessage("You are not in a voice channel!");
+                await e.Channel.SendMessage("You are not in a voice channel!");
                 return;
             }
-
+            Console.WriteLine("PlayingSong: " + playingSong.ToString());
             if (playingSong)
             {
-                queue.Add(pathOrUrl);
-                e.Channel.SendMessage("Added song to the queue! **[" + queue.IndexOf(pathOrUrl) + "]**");
+                queue.Enqueue(pathOrUrl);
+                await e.Channel.SendMessage("Added song to the queue! **[" + queue.Count + "]**");
                 return;
             }
             else
@@ -166,36 +171,45 @@ joinVoiceChannel(CommandEventArgs e)
             {
                 process.Kill();
                 process.Dispose();
+                Console.WriteLine("Killed process");
             }
             playingSong = false;
             Console.WriteLine("Reached end of function");
+
+            if (!queue.Any())
+            {
+                await e.Channel.SendMessage("No songs in queue! Disconnecting...");
+                leaveVoiceChannel();
+                return;
+            }
+
+            string video = queue.First();
+            queue.Dequeue();
+            Thread.Sleep(1000); //Sleep for a sec so it can stop music
+            await e.Channel.SendMessage("Playing next song in queue...");
+            /*
+            foreach (string vid in queue)
+            {
+                await e.Channel.SendMessage("\n" + vid);
+            }
+            */
+            //Play next song
+            await Task.Run(() => SendOnlineAudio(e, video));
+
             //Check if there are songs in the queue
-            if (queue.Count != 0)
+
+            /*
+            if (queue.Any())
             {
                 stop();
                 string video = queue.ElementAt(0);
-                queue.RemoveAt(0);
+                queue.Dequeue();
                 Thread.Sleep(1000); //Sleep for a sec so it can stop music
                 await Task.Run(() => SendOnlineAudio(e, video));
             }
+            */
+
             //leaveVoiceChannel();
         }
-
-        private void KillAllFFMPEG()
-        {
-            Process killFfmpeg = new Process();
-            ProcessStartInfo taskkillStartInfo = new ProcessStartInfo
-            {
-                FileName = "taskkill",
-                Arguments = "/F /IM cmd.exe",
-                UseShellExecute = false,
-                CreateNoWindow = true
-            };
-
-            killFfmpeg.StartInfo = taskkillStartInfo;
-            killFfmpeg.Start();
-
-        }
-
     }
 }
