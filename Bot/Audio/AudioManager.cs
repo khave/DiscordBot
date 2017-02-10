@@ -99,8 +99,15 @@ joinVoiceChannel(CommandEventArgs e)
 
 
         public async void SendOnlineAudio(CommandEventArgs e, string pathOrUrl)
-        {   
-            await joinVoiceChannel(e);
+        {
+            try {
+                await joinVoiceChannel(e);
+            }catch(TimeoutException ex)
+            {
+                Console.WriteLine("WARNING: Bot timed out!");
+                await e.Channel.SendMessage("ERROR: Bot timed out");
+                return;
+            }
             Console.WriteLine("Joined voice");
 
             if (_vClient == null)
