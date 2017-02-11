@@ -12,6 +12,9 @@ using NAudio.Wave;
 using VideoLibrary;
 using System.Net;
 using System.Collections.Generic;
+using RestSharp.Extensions.MonoHttp;
+using System.Text.RegularExpressions;
+using YoutubeSearch;
 
 namespace Bot.Audio
 {
@@ -26,13 +29,17 @@ namespace Bot.Audio
         private int[] resolutions = { 720, 480, 360, 240 };
         private double volume = 1.0;
         public Queue<string> queue = new Queue<string>();
+        public int currentVotes = 0;
         private bool isSkipping = false;
         Task currentPlayTask;
+        WebClient webClient;
+
 
         public AudioManager(MyBot myBot)
         {
             this.myBot = myBot;
             _client = myBot.discord;
+            this.webClient = new WebClient();
             myBot.discord.UsingAudio(x =>
             {
                 x.Mode = AudioMode.Outgoing;
@@ -71,32 +78,26 @@ joinVoiceChannel(CommandEventArgs e)
 
         public void stop()
         {
-            playingSong = false;
             Console.WriteLine("Stopping music bot...");
+            queue.Clear();
+            playingSong = false;
         }
 
         public async void skip(CommandEventArgs e)
         {
-            stop();
-            /*
-            if (!queue.Any())
+            currentVotes++;
+            //Users in voice - the bot
+            int usersInVoice = _vClient.Channel.Users.Count() - 1;
+            //Get needed votes (40% of current users)
+            int neededVotes = Convert.ToInt32(Math.Round(usersInVoice * 0.5));
+            await e.Channel.SendMessage(e.User.Name + " has voted to skip the current song! " + currentVotes + "/" + neededVotes);
+            if(currentVotes >= neededVotes)
             {
-                await e.Channel.SendMessage("No songs in queue!");
-                return;
+                playingSong = false;
+                await e.Channel.SendMessage("Skipping song...");
+                currentVotes = 0;
             }
-            stop();
-            string video = queue.First();
-            queue.Dequeue();
-            Thread.Sleep(1000); //Sleep for a sec so it can stop music
-            await e.Channel.SendMessage("Playing next song in queue...");
-            foreach(string vid in queue)
-            {
-                await e.Channel.SendMessage("\n"+vid);
-            }
-            await Task.Run(() => SendOnlineAudio(e, video));
-            */
         }
-
 
         public async void SendOnlineAudio(CommandEventArgs e, string pathOrUrl)
         {
@@ -108,26 +109,23 @@ joinVoiceChannel(CommandEventArgs e)
                 await e.Channel.SendMessage("ERROR: Bot timed out");
                 return;
             }
-            Console.WriteLine("Joined voice");
 
             if (_vClient == null)
             {
                 await e.Channel.SendMessage("You are not in a voice channel!");
                 return;
             }
-            Console.WriteLine("PlayingSong: " + playingSong.ToString());
             if (playingSong)
             {
                 queue.Enqueue(pathOrUrl);
-                await e.Channel.SendMessage("Added song to the queue! **[" + queue.Count + "]**");
+                await e.Channel.SendMessage("Added ```" + getVideoTitle(pathOrUrl) + "``` to the queue! **[" + queue.Count + "]**");
                 return;
             }
             else
             {
                 playingSong = true;
+                await e.Channel.SendMessage("Playing ```" + getVideoTitle(pathOrUrl) + "```");
             }
-
-            Console.WriteLine("Spawned process");
 
             var process = Process.Start(new ProcessStartInfo
             { // FFmpeg requires us to spawn a process and hook into its stdout, so we will create a Process
@@ -144,7 +142,6 @@ joinVoiceChannel(CommandEventArgs e)
             byte[] buffer = new byte[blockSize];
             int byteCount;
 
-            Console.WriteLine("Started sending audio");
             while (playingSong) // Loop forever, so data will always be read
             {
 
@@ -165,8 +162,6 @@ joinVoiceChannel(CommandEventArgs e)
                 }
             }
 
-            Console.WriteLine("Stopped sending audio");
-
             try {
                 _vClient.Wait(); // Wait for the Voice Client to finish sending data, as ffMPEG may have already finished buffering out a song, and it is unsafe to return now.
                 _vClient.Clear();
@@ -180,8 +175,10 @@ joinVoiceChannel(CommandEventArgs e)
                 process.Dispose();
                 Console.WriteLine("Killed process");
             }
+            //set current votes to 0, if a vote was underway, but not enough voted to skip
+            currentVotes = 0;
+
             playingSong = false;
-            Console.WriteLine("Reached end of function");
 
             if (!queue.Any())
             {
@@ -193,7 +190,6 @@ joinVoiceChannel(CommandEventArgs e)
             string video = queue.First();
             queue.Dequeue();
             Thread.Sleep(1000); //Sleep for a sec so it can stop music
-            await e.Channel.SendMessage("Playing next song in queue...");
             /*
             foreach (string vid in queue)
             {
@@ -217,6 +213,14 @@ joinVoiceChannel(CommandEventArgs e)
             */
 
             //leaveVoiceChannel();
+        }
+
+        public string getVideoTitle(string searchTerm)
+        {
+            string html = this.webClient.DownloadString("https://www.youtube.com/results?search_query=" + searchTerm + "&page=1");
+            string pattern = "<div class=\"yt-lockup-content\">.*?title=\"(?<NAME>.*?)\".*?</div></div></div></li>";
+            MatchCollection result = Regex.Matches(html, pattern, RegexOptions.Singleline);
+            return result[0].Groups[1].Value;
         }
     }
 }

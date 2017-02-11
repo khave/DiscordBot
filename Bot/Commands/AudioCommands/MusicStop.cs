@@ -14,14 +14,14 @@ namespace Bot.Commands.AudioCommands
 
         MyBot myBot;
 
-        public MusicStop(MyBot myBot) : base("music stop", "Stop music from playing with bot.", "music stop")
+        public MusicStop(MyBot myBot) : base("music stop", "Stop music from playing with bot.", "music stop", true)
         {
             this.myBot = myBot;
         }
 
         public override async void onCommand(CommandEventArgs e, DiscordClient discord, string[] args)
         {
-            e.Channel.SendMessage("Stopping music...");
+            await e.Channel.SendMessage("Stopping music...");
             myBot.audioManager.stop();
             Thread.Sleep(1000); // Sleep for a sec so it can leave voice
             myBot.audioManager.leaveVoiceChannel();

@@ -15,6 +15,7 @@ namespace Bot.Commands.AudioCommands
 
         MyBot myBot;
         WebClient webClient;
+        string title;
 
         public MusicPlay(MyBot myBot) : base("music play", "Play music", "music play <url>", new string[] { "play" })
         {
@@ -27,6 +28,7 @@ namespace Bot.Commands.AudioCommands
             string html = this.webClient.DownloadString("https://www.youtube.com/results?search_query=" + searchTerm + "&page=1");
             string pattern = "<div class=\"yt-lockup-content\">.*?title=\"(?<NAME>.*?)\".*?</div></div></div></li>";
             MatchCollection result = Regex.Matches(html, pattern, RegexOptions.Singleline);
+            title = result[0].Groups[1].Value;
             string url = string.Concat("http://www.youtube.com/watch?v=", VideoItemHelper.cull(result[0].Value, "watch?v=", "\""));
             return url;
         }
@@ -68,12 +70,10 @@ namespace Bot.Commands.AudioCommands
             {
                 //e.Channel.SendMessage("Searching for first video...");
                 string videoUrl = getVideoUrl(url);
-                e.Channel.SendMessage("Looking for video...");
                 myBot.audioManager.SendOnlineAudio(e, videoUrl);
             }
             else
             {
-                e.Channel.SendMessage("Playing " + GetTitle(url));
                 myBot.audioManager.SendOnlineAudio(e, url);
             }
 
