@@ -78,7 +78,7 @@ joinVoiceChannel(CommandEventArgs e)
             {
                 return false;
             }
-            if(e.User.VoiceChannel != _vClient.Channel)
+            if(_vClient != null && e.User.VoiceChannel != _vClient.Channel)
             {
                 return false;
             }
