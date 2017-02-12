@@ -71,6 +71,20 @@ joinVoiceChannel(CommandEventArgs e)
             _vClient = await _client.GetService<AudioService>().Join(e.User.VoiceChannel);
         }
 
+        //Sorry for shit code. I'll fix later.
+        public bool isInSameVoice(CommandEventArgs e)
+        {
+            if(e.User.VoiceChannel == null)
+            {
+                return false;
+            }
+            if(e.User.VoiceChannel != _vClient.Channel)
+            {
+                return false;
+            }
+            return true;
+        }
+
         public async void leaveVoiceChannel()
         {
             if (_vClient == null) return;
@@ -87,6 +101,12 @@ joinVoiceChannel(CommandEventArgs e)
 
         public async void skip(CommandEventArgs e)
         {
+            if (!isInSameVoice(e))
+            {
+                await e.Channel.SendMessage("You are not in the same voice as me!");
+                return;
+            }
+
             if (votes.Contains(e.User.Name))
             {
                 await e.Channel.SendMessage("You have already voted to skip!");
@@ -108,6 +128,12 @@ joinVoiceChannel(CommandEventArgs e)
 
         public async void SendOnlineAudio(CommandEventArgs e, string pathOrUrl)
         {
+            if (!isInSameVoice(e))
+            {
+                await e.Channel.SendMessage("You are not in the same voice as me!");
+                return;
+            }
+
             if (playingSong)
             {
                 queue.Enqueue(pathOrUrl);
