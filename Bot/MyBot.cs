@@ -123,6 +123,8 @@ namespace Bot
             commands.Add(new nsfw());
             commands.Add(new Info());
             commands.Add(new DeleteMessages());
+            commands.Add(new Rule34());
+            commands.Add(new Yandere());
             //new MusicPlay(this);
             new Test(this);
             audioCommands.Add(new Commands.AudioCommands.Hello());

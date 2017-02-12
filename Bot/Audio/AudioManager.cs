@@ -29,11 +29,12 @@ namespace Bot.Audio
         private int[] resolutions = { 720, 480, 360, 240 };
         private double volume = 1.0;
         public Queue<string> queue = new Queue<string>();
+        public List<string> votes = new List<string>();
         public int currentVotes = 0;
         private bool isSkipping = false;
         Task currentPlayTask;
         WebClient webClient;
-
+        
 
         public AudioManager(MyBot myBot)
         {
@@ -86,17 +87,22 @@ joinVoiceChannel(CommandEventArgs e)
 
         public async void skip(CommandEventArgs e)
         {
-            currentVotes++;
+            if (votes.Contains(e.User.Name))
+            {
+                await e.Channel.SendMessage("You have already voted to skip!");
+                return;
+            }
+            votes.Add(e.User.Name);
             //Users in voice - the bot
             int usersInVoice = _vClient.Channel.Users.Count() - 1;
             //Get needed votes (40% of current users)
             int neededVotes = Convert.ToInt32(Math.Round(usersInVoice * 0.5));
-            await e.Channel.SendMessage(e.User.Name + " has voted to skip the current song! " + currentVotes + "/" + neededVotes);
-            if(currentVotes >= neededVotes)
+            await e.Channel.SendMessage(e.User.Name + " has voted to skip the current song! " + votes.Count() + "/" + neededVotes);
+            if(votes.Count() >= neededVotes)
             {
                 playingSong = false;
                 await e.Channel.SendMessage("Skipping song...");
-                currentVotes = 0;
+                votes.Clear();
             }
         }
 
@@ -190,8 +196,8 @@ joinVoiceChannel(CommandEventArgs e)
                      process.Dispose();
                      Console.WriteLine("Killed process");
                  }
-                //set current votes to 0, if a vote was underway, but not enough voted to skip
-                currentVotes = 0;
+                 //set current votes to 0, if a vote was underway, but not enough voted to skip
+                 votes.Clear();
 
                  playingSong = false;
                  ts.Cancel();

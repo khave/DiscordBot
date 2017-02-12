@@ -118,9 +118,11 @@
     <Compile Include="Commands\Info.cs" />
     <Compile Include="Commands\nsfw.cs" />
     <Compile Include="Commands\Roll.cs" />
+    <Compile Include="Commands\Rule34.cs" />
     <Compile Include="Commands\Skip.cs" />
     <Compile Include="Commands\Test.cs" />
     <Compile Include="Commands\Volume.cs" />
+    <Compile Include="Commands\Yandere.cs" />
     <Compile Include="Events\MessageReceived.cs" />
     <Compile Include="MyBot.cs" />
     <Compile Include="NadekoBot\AnimeResult.cs" />
