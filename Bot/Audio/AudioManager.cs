@@ -72,6 +72,7 @@ joinVoiceChannel(CommandEventArgs e)
 
         public async void leaveVoiceChannel()
         {
+            if (_vClient == null) return;
             await _vClient.Disconnect();
             _vClient = null;
         }
@@ -101,118 +102,114 @@ joinVoiceChannel(CommandEventArgs e)
 
         public async void SendOnlineAudio(CommandEventArgs e, string pathOrUrl)
         {
-            try {
-                await joinVoiceChannel(e);
-            }catch(TimeoutException ex)
-            {
-                Console.WriteLine("WARNING: Bot timed out!");
-                await e.Channel.SendMessage("ERROR: Bot timed out");
-                return;
-            }
-
-            if (_vClient == null)
-            {
-                await e.Channel.SendMessage("You are not in a voice channel!");
-                return;
-            }
             if (playingSong)
             {
                 queue.Enqueue(pathOrUrl);
                 await e.Channel.SendMessage("Added ```" + getVideoTitle(pathOrUrl) + "``` to the queue! **[" + queue.Count + "]**");
                 return;
             }
-            else
-            {
-                playingSong = true;
-                await e.Channel.SendMessage("Playing ```" + getVideoTitle(pathOrUrl) + "```");
-            }
+            var ts = new CancellationTokenSource();
+            CancellationToken ct = ts.Token;
+            await Task.Factory.StartNew(async () =>
+             {
 
-            var process = Process.Start(new ProcessStartInfo
-            { // FFmpeg requires us to spawn a process and hook into its stdout, so we will create a Process
-                FileName = "cmd.exe",
-                Arguments = "/C youtube-dl.exe -f 140  -o - " + pathOrUrl + " -q | ffmpeg.exe -i pipe:0 -f s16le -ar 48000 -ac 2 pipe:1 -af \"volume=" + volume + "\" -loglevel quiet", // Next, we tell it to output 16-bit 48000Hz PCM, over 2 channels, to stdout.
-                UseShellExecute = false,
-                RedirectStandardOutput = true, // Capture the stdout of the process
-                RedirectStandardError = false,
-            });
+                 try
+                 {
+                     await joinVoiceChannel(e);
+                 }
+                 catch (TimeoutException ex)
+                 {
+                     Console.WriteLine("WARNING: Bot timed out!");
+                     await e.Channel.SendMessage("ERROR: Bot timed out");
+                     return;
+                 }
 
-            //Thread.Sleep(1000); // Sleep for a few seconds to FFmpeg can start processing data.
+                 if (_vClient == null)
+                 {
+                     await e.Channel.SendMessage("You are not in a voice channel!");
+                     return;
+                 }
+                 
+                 playingSong = true;
+                 await e.Channel.SendMessage("Playing ```" + getVideoTitle(pathOrUrl) + "```");
 
-            int blockSize = 3840; // The size of bytes to read per frame; 1920 for mono
-            byte[] buffer = new byte[blockSize];
-            int byteCount;
+                 var process = Process.Start(new ProcessStartInfo
+                 { // FFmpeg requires us to spawn a process and hook into its stdout, so we will create a Process
+                    FileName = "cmd.exe",
+                     Arguments = "/C youtube-dl.exe -f 140  -o - " + pathOrUrl + " -q -i | ffmpeg.exe -i pipe:0 -f s16le -ar 48000 -ac 2 pipe:1 -af \"volume=" + volume + "\" -loglevel quiet", // Next, we tell it to output 16-bit 48000Hz PCM, over 2 channels, to stdout.
+                    UseShellExecute = false,
+                     RedirectStandardOutput = true, // Capture the stdout of the process
+                    RedirectStandardError = false,
+                 });
 
-            while (playingSong) // Loop forever, so data will always be read
-            {
+                Thread.Sleep(1500); // Sleep for a few seconds to FFmpeg can start processing data.
 
-                if (!playingSong || process.HasExited) break;
+                int blockSize = 3840; // The size of bytes to read per frame; 1920 for mono
+                byte[] buffer = new byte[blockSize];
+                 int byteCount;
 
-                byteCount = process.StandardOutput.BaseStream // Access the underlying MemoryStream from the stdout of FFmpeg
-                        .Read(buffer, 0, blockSize); // Read stdout into the buffer
-
-                if (byteCount == 0) // FFmpeg did not output anything
-                    break; // Break out of the while(true) loop, since there was nothing to read.
-
-                try {
-                    _vClient.Send(buffer, 0, byteCount); // Send our data to Discord
-                }catch(OperationCanceledException ex)
+                 while (playingSong) // Loop forever, so data will always be read
                 {
-                    Console.WriteLine("Operation cancelled!");
-                    break;
-                }
-            }
 
-            try {
-                _vClient.Wait(); // Wait for the Voice Client to finish sending data, as ffMPEG may have already finished buffering out a song, and it is unsafe to return now.
-                _vClient.Clear();
-            }catch(OperationCanceledException ex)
-            {
-                Console.WriteLine("Operation cancelled at waiting");
-            }
-            if (!process.HasExited)
-            {
-                process.Kill();
-                process.Dispose();
-                Console.WriteLine("Killed process");
-            }
-            //set current votes to 0, if a vote was underway, but not enough voted to skip
-            currentVotes = 0;
+                     if (ct.IsCancellationRequested || !playingSong || process.HasExited)
+                     {
+                         // another thread decided to cancel
+                         Console.WriteLine("task canceled");
+                         break;
+                     }
 
-            playingSong = false;
+                     byteCount = process.StandardOutput.BaseStream // Access the underlying MemoryStream from the stdout of FFmpeg
+                             .Read(buffer, 0, blockSize); // Read stdout into the buffer
 
-            if (!queue.Any())
-            {
-                await e.Channel.SendMessage("No songs in queue! Disconnecting...");
-                leaveVoiceChannel();
-                return;
-            }
+                    if (byteCount == 0) // FFmpeg did not output anything
+                        break; // Break out of the while(true) loop, since there was nothing to read.
 
-            string video = queue.First();
-            queue.Dequeue();
-            Thread.Sleep(1000); //Sleep for a sec so it can stop music
-            /*
-            foreach (string vid in queue)
-            {
-                await e.Channel.SendMessage("\n" + vid);
-            }
-            */
-            //Play next song
-            await Task.Run(() => SendOnlineAudio(e, video));
+                    try
+                     {
+                         _vClient.Send(buffer, 0, byteCount); // Send our data to Discord
+                    }
+                     catch (OperationCanceledException ex)
+                     {
+                         Console.WriteLine("Operation cancelled!");
+                         break;
+                     }
+                 }
 
-            //Check if there are songs in the queue
+                 try
+                 {
+                     _vClient.Wait(); // Wait for the Voice Client to finish sending data, as ffMPEG may have already finished buffering out a song, and it is unsafe to return now.
+                     //_vClient.Clear();
+                 }
+                 catch (OperationCanceledException ex)
+                 {
+                     Console.WriteLine("Operation cancelled at waiting");
+                 }
+                 if (!process.HasExited)
+                 {
+                     process.Kill();
+                     process.Dispose();
+                     Console.WriteLine("Killed process");
+                 }
+                //set current votes to 0, if a vote was underway, but not enough voted to skip
+                currentVotes = 0;
 
-            /*
-            if (queue.Any())
-            {
-                stop();
-                string video = queue.ElementAt(0);
-                queue.Dequeue();
-                Thread.Sleep(1000); //Sleep for a sec so it can stop music
-                await Task.Run(() => SendOnlineAudio(e, video));
-            }
-            */
+                 playingSong = false;
+                 ts.Cancel();
 
-            //leaveVoiceChannel();
+                 if (!queue.Any())
+                 {
+                     await e.Channel.SendMessage("No songs in queue! Disconnecting...");
+                     leaveVoiceChannel();
+                     return;
+                 }
+
+                 string video = queue.First();
+                 queue.Dequeue();
+                 Thread.Sleep(1000); //Sleep for a sec so it can stop music              
+                 //Play next song
+                 //await Task.Run(() => SendOnlineAudio(e, video), ct);
+                 SendOnlineAudio(e, video);
+            }, ct);
         }
 
         public string getVideoTitle(string searchTerm)
