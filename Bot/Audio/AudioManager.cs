@@ -87,7 +87,7 @@ joinVoiceChannel(CommandEventArgs e)
 
         public async void leaveVoiceChannel()
         {
-            if (_vClient == null) return;
+            if (_vClient == null || playingSong) return;
             await _vClient.Disconnect();
             _vClient = null;
         }

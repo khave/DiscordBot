@@ -39,8 +39,15 @@ namespace Bot.Commands
             string html = GetHtmlCode(topic);
             List<string> urls = GetUrls(html);
             var rnd = new Random();
-
-            int randomUrl = rnd.Next(0, urls.Count - 1);
+            int randomUrl;
+            try {
+                 randomUrl = rnd.Next(0, urls.Count - 1);
+            }catch(ArgumentOutOfRangeException ex)
+            {
+                //Dunno why this happens.
+                await e.Channel.SendMessage("An error occured :(");
+                return;
+            }
 
             string url = urls[randomUrl];
             using (var client = new WebClient())
