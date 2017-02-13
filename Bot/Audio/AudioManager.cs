@@ -28,12 +28,13 @@ namespace Bot.Audio
         private bool forceStop = false;
         private int[] resolutions = { 720, 480, 360, 240 };
         private double volume = 1.0;
-        public Queue<string> queue = new Queue<string>();
+        public Queue<YouTubeVideo> queue = new Queue<YouTubeVideo>();
         public List<string> votes = new List<string>();
         public int currentVotes = 0;
         private bool isSkipping = false;
         Task currentPlayTask;
         WebClient webClient;
+        public YouTubeVideo currentSong;
         
 
         public AudioManager(MyBot myBot)
@@ -96,6 +97,7 @@ joinVoiceChannel(CommandEventArgs e)
         {
             Console.WriteLine("Stopping music bot...");
             queue.Clear();
+            currentSong = null;
             playingSong = false;
         }
 
@@ -104,6 +106,14 @@ joinVoiceChannel(CommandEventArgs e)
             if (!isInSameVoice(e))
             {
                 await e.Channel.SendMessage("You are not in the same voice as me!");
+                return;
+            }
+
+            if(currentSong != null && currentSong.requester == e.User.Name)
+            {
+                playingSong = false;
+                await e.Channel.SendMessage("Skipping song...");
+                votes.Clear();
                 return;
             }
 
@@ -134,12 +144,17 @@ joinVoiceChannel(CommandEventArgs e)
                 return;
             }
 
+            YouTubeVideo ytVideo = new YouTubeVideo(pathOrUrl, e.User.Name);
+
             if (playingSong)
             {
-                queue.Enqueue(pathOrUrl);
-                await e.Channel.SendMessage("Added ```" + getVideoTitle(pathOrUrl) + "``` to the queue! **[" + queue.Count + "]**");
+                queue.Enqueue(ytVideo);
+                await e.Channel.SendMessage(ytVideo.requester + " added `" + ytVideo.title + "` **" + ytVideo.duration + "** to the queue! **[" + queue.Count + "]**");
                 return;
             }
+
+            currentSong = ytVideo;
+
             var ts = new CancellationTokenSource();
             CancellationToken ct = ts.Token;
             await Task.Factory.StartNew(async () =>
@@ -163,7 +178,7 @@ joinVoiceChannel(CommandEventArgs e)
                  }
                  
                  playingSong = true;
-                 await e.Channel.SendMessage("Playing ```" + getVideoTitle(pathOrUrl) + "```");
+                 await e.Channel.SendMessage("Playing `" + currentSong.title + "` **" + currentSong.duration + "**");
 
                  var process = Process.Start(new ProcessStartInfo
                  { // FFmpeg requires us to spawn a process and hook into its stdout, so we will create a Process
@@ -235,21 +250,13 @@ joinVoiceChannel(CommandEventArgs e)
                      return;
                  }
 
-                 string video = queue.First();
+                 string video = queue.First().url;
                  queue.Dequeue();
                  Thread.Sleep(1000); //Sleep for a sec so it can stop music              
                  //Play next song
                  //await Task.Run(() => SendOnlineAudio(e, video), ct);
                  SendOnlineAudio(e, video);
             }, ct);
-        }
-
-        public string getVideoTitle(string searchTerm)
-        {
-            string html = this.webClient.DownloadString("https://www.youtube.com/results?search_query=" + searchTerm + "&page=1");
-            string pattern = "<div class=\"yt-lockup-content\">.*?title=\"(?<NAME>.*?)\".*?</div></div></div></li>";
-            MatchCollection result = Regex.Matches(html, pattern, RegexOptions.Singleline);
-            return result[0].Groups[1].Value;
         }
     }
 }

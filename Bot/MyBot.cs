@@ -125,6 +125,8 @@ namespace Bot
             commands.Add(new DeleteMessages());
             commands.Add(new Rule34());
             commands.Add(new Yandere());
+            commands.Add(new MusicList(this));
+            commands.Add(new MusicShuffle(this));
             //new MusicPlay(this);
             new Test(this);
             audioCommands.Add(new Commands.AudioCommands.Hello());
