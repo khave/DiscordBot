@@ -14,22 +14,22 @@ namespace Bot.Commands.AudioCommands
 
         MyBot myBot;
 
-        public LoadPlaylist(MyBot myBot) : base("music load", "Load a playlist!", "!music load <name>", new string[] { "load", "playlist load" })
+        public LoadPlaylist(MyBot myBot) : base("music load", "Load a playlist!", "!music load <name/youtube url>", new string[] { "load", "playlist load" })
         {
             this.myBot = myBot;
         }
 
         public override void onCommand(CommandEventArgs e, DiscordClient discord, string[] args)
         {
+            string playlist = String.Join(" ", args);
             PlaylistManager playlistManager = new PlaylistManager();
-            Console.WriteLine(args[0]);
-            if (!playlistManager.playListsExists(args[0]))
+            if (!playlistManager.playListsExists(playlist) && !playlist.Contains("www.youtube"))
             {
                 e.Channel.SendMessage("That playlist does not exist!");
                 return;
             }
 
-            playlistManager.loadPlaylist(args[0], myBot.audioManager);
+            playlistManager.loadPlaylist(playlist, e.User.Name, myBot.audioManager);
             string video = myBot.audioManager.queue.First().url;
             myBot.audioManager.queue.Dequeue();
             myBot.audioManager.SendOnlineAudio(e, video);

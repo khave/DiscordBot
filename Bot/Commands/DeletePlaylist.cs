@@ -19,14 +19,16 @@ namespace Bot.Commands
 
         public override void onCommand(CommandEventArgs e, DiscordClient discord, string[] args)
         {
+            string playlist = String.Join(" ", args);
+
             PlaylistManager playlistManager = new PlaylistManager();
-            if (!playlistManager.playListsExists(args[0]))
+            if (!playlistManager.playListsExists(playlist))
             {
                 e.Channel.SendMessage("No such playlist exists!");
                 return;
             }
 
-            playlistManager.deletePlaylist(args[0]);
+            playlistManager.deletePlaylist(playlist);
             e.Channel.SendMessage("Deleted the playlist!");
         }
     }

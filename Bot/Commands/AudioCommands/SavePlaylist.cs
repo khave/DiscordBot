@@ -21,8 +21,9 @@ namespace Bot.Commands.AudioCommands
 
         public override void onCommand(CommandEventArgs e, DiscordClient discord, string[] args)
         {
+            string playlist = String.Join(" ", args);
             PlaylistManager playlistManager = new PlaylistManager();
-            playlistManager.savePlaylist(args[0], myBot.audioManager.queue);
+            playlistManager.savePlaylist(playlist, myBot.audioManager.queue);
             myBot.audioManager.sendMessage("Saved the playlist!");
         }
     }

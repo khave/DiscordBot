@@ -47,20 +47,42 @@ namespace Bot.Commands.AudioCommands.Playlists
             }
         }
 
-        public void loadPlaylist(string name, AudioManager audioManager)
+        public void loadPlaylist(string name, string requester, AudioManager audioManager)
         {
-            if (!playListsExists(name))
+            if (!playListsExists(name) && !name.Contains("www.youtube"))
             {
                 audioManager.sendMessage("No such playlist exists!");
             }
 
             audioManager.sendMessage("Loading playlist...");
             Queue<YouTubeVideo> queue = new Queue<YouTubeVideo>();
-            string[] lines = System.IO.File.ReadAllLines(@".\playlists\" + name + ".playlist");
 
-            foreach (string line in lines)
+            if (name.Contains("www.youtube"))
             {
-                queue.Enqueue(YouTubeVideo.fromString(line));
+                var request = YouTubeVideo.auth().PlaylistItems.List("contentDetails");
+                string id = name.Substring(name.IndexOf('=') + 1);
+                request.PlaylistId = id;
+                var response = request.Execute();
+
+                YouTubeVideo[] videos = new YouTubeVideo[response.Items.Count];
+                int i = 0;
+                foreach (var item in response.Items)
+                {
+                    videos[i++] = new YouTubeVideo("http://www.youtube.com/watch?v=" + item.ContentDetails.VideoId, requester);
+                }
+
+                foreach (YouTubeVideo video in videos)
+                {
+                    queue.Enqueue(video);
+                }
+            }
+            else {
+                string[] lines = System.IO.File.ReadAllLines(@".\playlists\" + name + ".playlist");
+
+                foreach (string line in lines)
+                {
+                    queue.Enqueue(YouTubeVideo.fromString(line));
+                }
             }
             audioManager.setQueue(queue);
             audioManager.sendMessage("Playlist loaded!");
