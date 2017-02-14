@@ -21,7 +21,7 @@ namespace Bot
         {
             this.url = url;
             this.requester = requester;
-            this.id = url.Substring(url.IndexOf("?v=") + 1);
+            this.id = url.Substring(url.IndexOf("?v=") + 1).Replace("v=", "");
             getVideoInfo(this);
         }
 

@@ -60,7 +60,8 @@ namespace Bot.Commands.AudioCommands.Playlists
             if (name.Contains("www.youtube"))
             {
                 var request = YouTubeVideo.auth().PlaylistItems.List("contentDetails");
-                string id = name.Substring(name.IndexOf("?v=") + 1);
+                string id = name.Substring(name.IndexOf("list=") + 1).Replace("ist=", "");
+                Console.WriteLine(id);
                 request.PlaylistId = id;
                 var response = request.Execute();
 
