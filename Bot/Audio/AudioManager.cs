@@ -48,6 +48,21 @@ namespace Bot.Audio
             });
         }
 
+        public bool isMusicChannel(CommandEventArgs e)
+        {
+            if (e.Channel.Name != "music")
+            {
+                e.Channel.SendMessage("Please only do music commands in #music");
+                return false;
+            }
+            return true;
+        }
+
+        public void sendMessage(string message)
+        {
+            myBot.discord.FindServers("The Soviet Gamers").First().FindChannels("music").First().SendMessage(message);
+        }
+
         public void setVolume(int volume)
         {
             this.volume = ((double) volume/100);
@@ -57,12 +72,6 @@ namespace Bot.Audio
         Task
 joinVoiceChannel(CommandEventArgs e)
         {
-
-            if(_vClient != null)
-            {
-                return;
-            }
-
             if (e.User.VoiceChannel == null)
             {
                 await e.Channel.SendMessage("ERROR: You're not in a channel");
@@ -79,6 +88,7 @@ joinVoiceChannel(CommandEventArgs e)
             {
                 return false;
             }
+            //Console.WriteLine(e.User.VoiceChannel + " != " + _vClient.Channel);
             if(_vClient != null && e.User.VoiceChannel != _vClient.Channel)
             {
                 return false;
@@ -90,7 +100,6 @@ joinVoiceChannel(CommandEventArgs e)
         {
             if (_vClient == null || playingSong) return;
             await _vClient.Disconnect();
-            _vClient = null;
         }
 
         public void stop()
@@ -138,6 +147,17 @@ joinVoiceChannel(CommandEventArgs e)
 
         public async void SendOnlineAudio(CommandEventArgs e, string pathOrUrl)
         {
+            try
+            {
+                await joinVoiceChannel(e);
+            }
+            catch (TimeoutException ex)
+            {
+                Console.WriteLine("WARNING: Bot timed out!");
+                await e.Channel.SendMessage("ERROR: Bot timed out");
+                return;
+            }
+
             if (!isInSameVoice(e))
             {
                 await e.Channel.SendMessage("You are not in the same voice as me!");
@@ -149,7 +169,7 @@ joinVoiceChannel(CommandEventArgs e)
             if (playingSong)
             {
                 queue.Enqueue(ytVideo);
-                await e.Channel.SendMessage(ytVideo.requester + " added `" + ytVideo.title + "` **" + ytVideo.duration + "** to the queue! **[" + queue.Count + "]**");
+                sendMessage(ytVideo.requester + " added `" + ytVideo.title + "` **" + ytVideo.duration + "** to the queue! **[" + queue.Count + "]**");
                 return;
             }
 
@@ -159,18 +179,6 @@ joinVoiceChannel(CommandEventArgs e)
             CancellationToken ct = ts.Token;
             await Task.Factory.StartNew(async () =>
              {
-
-                 try
-                 {
-                     await joinVoiceChannel(e);
-                 }
-                 catch (TimeoutException ex)
-                 {
-                     Console.WriteLine("WARNING: Bot timed out!");
-                     await e.Channel.SendMessage("ERROR: Bot timed out");
-                     return;
-                 }
-
                  if (_vClient == null)
                  {
                      await e.Channel.SendMessage("You are not in a voice channel!");
@@ -178,7 +186,7 @@ joinVoiceChannel(CommandEventArgs e)
                  }
                  
                  playingSong = true;
-                 await e.Channel.SendMessage("Playing `" + currentSong.title + "` **" + currentSong.duration + "**");
+                 sendMessage("Playing `" + currentSong.title + "` **" + currentSong.duration + "**");
 
                  var process = Process.Start(new ProcessStartInfo
                  { // FFmpeg requires us to spawn a process and hook into its stdout, so we will create a Process
@@ -245,7 +253,7 @@ joinVoiceChannel(CommandEventArgs e)
 
                  if (!queue.Any())
                  {
-                     await e.Channel.SendMessage("No songs in queue! Disconnecting...");
+                     sendMessage("No songs in queue! Disconnecting...");
                      leaveVoiceChannel();
                      return;
                  }
@@ -257,6 +265,11 @@ joinVoiceChannel(CommandEventArgs e)
                  //await Task.Run(() => SendOnlineAudio(e, video), ct);
                  SendOnlineAudio(e, video);
             }, ct);
+        }
+
+        public void setQueue(Queue<YouTubeVideo> queue)
+        {
+            this.queue = queue;
         }
     }
 }

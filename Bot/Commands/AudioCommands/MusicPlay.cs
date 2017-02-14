@@ -7,6 +7,7 @@ using Discord;
 using YoutubeExtractor;
 using System.Collections.Generic;
 using RestSharp.Extensions.MonoHttp;
+using System.Linq;
 
 namespace Bot.Commands.AudioCommands
 {
@@ -64,6 +65,16 @@ namespace Bot.Commands.AudioCommands
 
         public override void onCommand(CommandEventArgs e, DiscordClient discord, string[] args)
         {
+            if (!myBot.audioManager.isMusicChannel(e)) return;
+
+            if (args.Length < 1)
+            {
+                string video = myBot.audioManager.queue.First().url;
+                myBot.audioManager.queue.Dequeue();
+                myBot.audioManager.SendOnlineAudio(e, video);
+                return;
+            }
+
             string url = String.Join(" ", args);            
 
             if (!isYoutubeUrl(url))

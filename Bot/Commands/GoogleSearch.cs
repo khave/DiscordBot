@@ -26,12 +26,6 @@ namespace Bot.Commands
                 return;
             }
 
-            if(e.User.Name == "Sadenar")
-            {
-                await e.Channel.SendMessage("You must be atleast 15 or older to use this command! Kappa");
-                return;
-            }
-
             string topic = String.Join(" ", args);
 
             await e.Channel.SendMessage("Searching for image...");

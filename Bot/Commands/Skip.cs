@@ -15,6 +15,8 @@ namespace Bot.Commands
 
         public override async void onCommand(CommandEventArgs e, DiscordClient discord, string[] args)
         {
+            if (!myBot.audioManager.isMusicChannel(e)) return;
+
             myBot.audioManager.skip(e);
         }
     }

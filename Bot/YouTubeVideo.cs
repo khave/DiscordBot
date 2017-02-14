@@ -25,6 +25,17 @@ namespace Bot
             getVideoInfo(this);
         }
 
+        public static YouTubeVideo fromString(string tmp)
+        {
+            string[] array = tmp.Split(':');
+            return new YouTubeVideo("http://www.youtube.com/watch?v=" + array[0], array[1]);
+        }
+
+        public string toString()
+        {
+            return this.id + ":" + this.requester;
+        }
+
         public static YouTubeService auth()
         {
             UserCredential creds;

@@ -23,6 +23,14 @@ namespace Bot
         public List<Response> responses = new List<Response>();
         public AudioManager audioManager;
         public bool isTesting = false;
+        /*
+
+
+            This bot is made for the server "The Soviet Gamers"
+            If this bot is used on any other channels, some functions will not work.
+
+
+        */
 
         public MyBot()
         {
@@ -127,13 +135,16 @@ namespace Bot
             commands.Add(new Yandere());
             commands.Add(new MusicList(this));
             commands.Add(new MusicShuffle(this));
+            commands.Add(new SavePlaylist(this));
+            commands.Add(new LoadPlaylist(this));
+            commands.Add(new PlaylistList(this));
+            commands.Add(new DeletePlaylist());
             //new MusicPlay(this);
             new Test(this);
             audioCommands.Add(new Commands.AudioCommands.Hello());
 
             //Responses
             //TODO: Load responses from either txt-file or database
-            responses.Add(new Response("khave", "test", 100, "Test response!"));
             responses.Add(new Response("Mooshii", "porn", 100, "Where?!"));
             responses.Add(new Response("Creeperskull", "Aye", 25, "Aye lmao"));
             responses.Add(new Response("Nickimus", "!hello", 100, "pleb"));
