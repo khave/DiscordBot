@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using System.Net;
@@ -13,6 +9,8 @@ namespace Bot.Commands
     class Cat : BotCommand
     {
 
+        Loader loader;
+
         public Cat() : base("cat", "Get a random cat", "cat")
         {
 
@@ -22,8 +20,10 @@ namespace Bot.Commands
         {
             using (var client = new WebClient())
             {
-                await e.Channel.SendMessage("Finding random cat image...");
-                try {
+                Message message = await e.Channel.SendMessage("Finding random cat image...");
+                loader = new Loader(message);
+                try
+                {
                     client.DownloadFile("http://thecatapi.com/api/images/get?format=src&type=png", @".\cat.png");
                     await e.Channel.SendFile(@".\cat.png");
                     if (File.Exists(@".\cat.png"))

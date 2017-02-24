@@ -169,20 +169,21 @@
     <Compile Include="Commands\AudioCommands\SavePlaylist.cs" />
     <Compile Include="Commands\Cat.cs" />
     <Compile Include="Commands\DeleteMessages.cs" />
-    <Compile Include="Commands\DeletePlaylist.cs" />
+    <Compile Include="Commands\AudioCommands\DeletePlaylist.cs" />
     <Compile Include="Commands\GoogleSearch.cs" />
     <Compile Include="Commands\Hello.cs" />
     <Compile Include="Commands\Help.cs" />
     <Compile Include="Commands\Info.cs" />
-    <Compile Include="Commands\MusicList.cs" />
+    <Compile Include="Commands\AudioCommands\MusicList.cs" />
     <Compile Include="Commands\nsfw.cs" />
     <Compile Include="Commands\Roll.cs" />
     <Compile Include="Commands\Rule34.cs" />
-    <Compile Include="Commands\Skip.cs" />
+    <Compile Include="Commands\AudioCommands\Skip.cs" />
     <Compile Include="Commands\Test.cs" />
-    <Compile Include="Commands\Volume.cs" />
+    <Compile Include="Commands\AudioCommands\Volume.cs" />
     <Compile Include="Commands\Yandere.cs" />
     <Compile Include="Events\MessageReceived.cs" />
+    <Compile Include="Loader.cs" />
     <Compile Include="MyBot.cs" />
     <Compile Include="NadekoBot\AnimeResult.cs" />
     <Compile Include="NadekoBot\MangaResult.cs" />
@@ -191,9 +192,9 @@
     <Compile Include="Responses\Response.cs" />
     <Compile Include="System\Web\HttpUtility.cs" />
     <Compile Include="Utils.cs" />
-    <Compile Include="YoutubeAPI.cs" />
+    <Compile Include="Audio\YouTube\YoutubeAPI.cs" />
     <Compile Include="BotMusic.cs" />
-    <Compile Include="YouTubeVideo.cs" />
+    <Compile Include="Audio\YouTube\YouTubeVideo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -203,25 +204,17 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="airHorn.mp4">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Audio\libsodium.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Audio\opus.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="ffmpeg.exe">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="ffplay.exe" />
-    <Content Include="ffprobe.exe" />
     <Content Include="libsodium.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="opus.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="roll1.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
