@@ -35,7 +35,7 @@ namespace Bot
                     try {
                         await e.Channel.SendIsTyping();
                         await e.Channel.SendMessage(session.Send(msg));
-                    }catch(Exception exc)
+                    }catch(ArgumentException exc)
                     {
                         await e.Channel.SendMessage("Something went wrong with the bot :(");
                     }
