@@ -1,9 +1,5 @@
 ﻿using Discord.Commands;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Discord;
 
 namespace Bot.Commands
@@ -41,9 +37,15 @@ namespace Bot.Commands
                     return;
                 }
                 await e.Channel.SendMessage(e.User.Mention + " Rolled D" + diceNum + ": " + rInt);
-                if (diceNum == 20 && rInt == 20)
+                if (diceNum == 20)
                 {
-                    await e.Channel.SendFile(@".\roll.jpg");
+                    if (rInt == 20)
+                    {
+                        await e.Channel.SendFile(@".\roll.jpg");
+                    }else if(rInt == 1)
+                    {
+                        await e.Channel.SendFile(@".\roll1.png");
+                    }
                 }
             }
             catch (FormatException ex)

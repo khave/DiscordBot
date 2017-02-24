@@ -37,9 +37,6 @@ C:\Users\Multi09\Documents\Visual Studio 2015\Projects\DiscordBot\Bot\bin\Debug\
 C:\Users\Multi09\Documents\Visual Studio 2015\Projects\DiscordBot\Bot\bin\Debug\RestSharp.xml
 C:\Users\Multi09\Documents\Visual Studio 2015\Projects\DiscordBot\Bot\obj\Debug\Bot.csprojResolveAssemblyReference.cache
 C:\Users\Kristian\Source\Repos\DiscordBot\Bot\bin\Debug\Bot.exe.config
-C:\Users\Kristian\Source\Repos\DiscordBot\Bot\bin\Debug\airHorn.mp4
-C:\Users\Kristian\Source\Repos\DiscordBot\Bot\bin\Debug\Audio\libsodium.dll
-C:\Users\Kristian\Source\Repos\DiscordBot\Bot\bin\Debug\Audio\opus.dll
 C:\Users\Kristian\Source\Repos\DiscordBot\Bot\bin\Debug\ffmpeg.exe
 C:\Users\Kristian\Source\Repos\DiscordBot\Bot\bin\Debug\libsodium.dll
 C:\Users\Kristian\Source\Repos\DiscordBot\Bot\bin\Debug\opus.dll
@@ -98,3 +95,4 @@ C:\Users\Kristian\Source\Repos\DiscordBot\Bot\bin\Debug\Google.Apis.Plus.v1.xml
 C:\Users\Kristian\Source\Repos\DiscordBot\Bot\bin\Debug\Google.Apis.YouTube.v3.pdb
 C:\Users\Kristian\Source\Repos\DiscordBot\Bot\bin\Debug\Google.Apis.YouTube.v3.xml
 C:\Users\Kristian\Source\Repos\DiscordBot\Bot\bin\Debug\Zlib.Portable.xml
+C:\Users\Kristian\Source\Repos\DiscordBot\Bot\bin\Debug\roll1.png

@@ -4,8 +4,6 @@ using System.Net;
 using System.Text.RegularExpressions;
 using YoutubeSearch;
 using Discord;
-using YoutubeExtractor;
-using System.Collections.Generic;
 using RestSharp.Extensions.MonoHttp;
 using System.Linq;
 
