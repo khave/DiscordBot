@@ -179,6 +179,7 @@
     <Compile Include="Commands\Roll.cs" />
     <Compile Include="Commands\Rule34.cs" />
     <Compile Include="Commands\AudioCommands\Skip.cs" />
+    <Compile Include="Commands\SetGame.cs" />
     <Compile Include="Commands\Test.cs" />
     <Compile Include="Commands\AudioCommands\Volume.cs" />
     <Compile Include="Commands\Yandere.cs" />

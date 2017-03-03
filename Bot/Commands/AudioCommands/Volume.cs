@@ -9,7 +9,7 @@ namespace Bot.Commands
 
         MyBot myBot;
 
-        public Volume(MyBot myBot) : base("music volume", "Turn the volume up/down", "music volume <0-100>", true, new string[] { "volume", "v" })
+        public Volume(MyBot myBot) : base("music volume", "Turn the volume up/down", "!music volume <0-100>", true, new string[] { "volume", "v" })
         {
             this.myBot = myBot;
         }

@@ -8,7 +8,7 @@ namespace Bot.Commands
 
         MyBot myBot;
 
-        public Skip(MyBot myBot) : base("music skip", "Vote skip the current song", "music skip", new string[] { "skip" })
+        public Skip(MyBot myBot) : base("music skip", "Vote skip the current song", "!music skip", new string[] { "skip" })
         {
             this.myBot = myBot;
         }

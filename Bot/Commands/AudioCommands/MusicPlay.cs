@@ -16,7 +16,7 @@ namespace Bot.Commands.AudioCommands
         WebClient webClient;
         string title;
 
-        public MusicPlay(MyBot myBot) : base("music play", "Play music", "music play <url>", new string[] { "play" })
+        public MusicPlay(MyBot myBot) : base("music play", "Play music", "!music play <url>", new string[] { "play" })
         {
             this.myBot = myBot;
             this.webClient = new WebClient();

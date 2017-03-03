@@ -9,7 +9,7 @@ namespace Bot.Commands.AudioCommands
 
         MyBot myBot;
 
-        public MusicStop(MyBot myBot) : base("music stop", "Stop music from playing with bot.", "music stop", true)
+        public MusicStop(MyBot myBot) : base("music stop", "Stop music from playing with bot.", "!music stop", true)
         {
             this.myBot = myBot;
         }

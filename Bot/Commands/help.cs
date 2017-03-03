@@ -8,7 +8,7 @@ namespace Bot.Commands
 
         MyBot myBot;
 
-        public Help(MyBot myBot) : base("help", "Shows you a list of commands and how to use them", "help")
+        public Help(MyBot myBot) : base("help", "Shows you a list of commands and how to use them", "!help")
         {
             this.myBot = myBot;
         }

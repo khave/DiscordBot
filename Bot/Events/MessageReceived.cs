@@ -1,4 +1,6 @@
 ﻿using Bot.Responses;
+using Discord;
+using System;
 
 namespace Bot.Events
 {
@@ -19,6 +21,22 @@ namespace Bot.Events
             {
                 if (!e.Message.IsAuthor)
                 {
+                    if (e.Channel.IsPrivate)
+                    {
+                        foreach(User user in myBot.discord.GetServer(myBot.serverId).Users){
+                            if (myBot.hasAdmin(user))
+                            {
+                                try {
+                                    await user.SendMessage(e.User.Name + " has contacted an admin with the message: " +
+                                        "\n" + e.Message.Text);
+                                }catch(Exception ex)//Admin is offline or whatnot
+                                {
+                                    Console.WriteLine("Failed to write DM to: " + user.Name);
+                                }
+                            }
+                        }
+                    }
+
                     foreach (Response response in myBot.responses)
                     {
                         if (e.User.Name == response.getUser() && Utils.getRandInt(0, 100) < response.getChance())

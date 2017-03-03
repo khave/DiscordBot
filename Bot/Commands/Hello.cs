@@ -6,7 +6,7 @@ namespace Bot.Commands
     class Hello : BotCommand
     {
 
-        public Hello() : base("hello", "Hello World Command!", "hello", true)
+        public Hello() : base("hello", "Hello World Command!", "!hello", true)
         {
         }
             

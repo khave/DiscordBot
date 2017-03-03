@@ -11,7 +11,7 @@ namespace Bot.Commands
 
         Loader loader;
 
-        public Cat() : base("cat", "Get a random cat", "cat")
+        public Cat() : base("cat", "Get a random cat", "!cat")
         {
 
         }

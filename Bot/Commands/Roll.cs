@@ -10,7 +10,7 @@ namespace Bot.Commands
         MyBot myBot;
         Random r = new Random();
 
-        public Roll(MyBot myBot) : base("roll", "Roll a dice!", "roll <type> <times>")
+        public Roll(MyBot myBot) : base("roll", "Roll a dice!", "!roll <type> <times>")
         {
             this.myBot = myBot;
         }

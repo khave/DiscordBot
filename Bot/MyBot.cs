@@ -21,6 +21,7 @@ namespace Bot
         public List<Response> responses = new List<Response>();
         public AudioManager audioManager;
         public bool isTesting = false;
+        public ulong serverId = 217373774821982210;
         /*
 
 
@@ -106,7 +107,7 @@ namespace Bot
             discord.ExecuteAndWait(async () =>
            {
                await discord.Connect("MjcxOTg3MDQ1MTAwOTQ1NDA4.C21F9Q.9OC5Lt1uMKyLVPoqhL-Rzp10mOo", TokenType.Bot);
-               discord.SetGame("Use !help for commands");
+               discord.SetGame("DM to contact mods");
            });
         }
 
@@ -115,14 +116,11 @@ namespace Bot
             //Commands
             commands.Add(new Commands.Hello());
             commands.Add(new Help(this));
-            commands.Add(new MusicJoin(this));
-            commands.Add(new Cat());
-            commands.Add(new MusicDownload());
-            commands.Add(new MusicPause(this));
-            commands.Add(new MusicStop(this));
-            commands.Add(new MusicPlay(this));
+            //commands.Add(new MusicJoin(this));
+            //commands.Add(new Cat());
+            //commands.Add(new MusicDownload());
+            //commands.Add(new MusicPause(this));
             commands.Add(new Roll(this));
-            commands.Add(new Volume(this));
             commands.Add(new Skip(this));
             commands.Add(new Anime());
             commands.Add(new GoogleSearch());
@@ -131,12 +129,16 @@ namespace Bot
             commands.Add(new DeleteMessages());
             commands.Add(new Rule34());
             commands.Add(new Yandere());
+            commands.Add(new MusicStop(this));
+            commands.Add(new MusicPlay(this));
+            commands.Add(new Volume(this));
             commands.Add(new MusicList(this));
             commands.Add(new MusicShuffle(this));
             commands.Add(new SavePlaylist(this));
             commands.Add(new LoadPlaylist(this));
             commands.Add(new PlaylistList(this));
             commands.Add(new DeletePlaylist());
+            commands.Add(new SetGame(this));
             //new MusicPlay(this);
             new Test(this);
             audioCommands.Add(new Commands.AudioCommands.Hello());
@@ -168,6 +170,11 @@ namespace Bot
         public bool hasAdmin(CommandEventArgs e)
         {
             return e.User.HasRole(e.Server.FindRoles("BOT MASTERS").First()) || e.User.HasRole(e.Server.FindRoles("Generals").First()) || e.User.Name == "khave";
+        }
+
+        public bool hasAdmin(User user)
+        {
+            return user.HasRole(discord.GetServer(serverId).FindRoles("BOT MASTERS").First()) || user.HasRole(discord.GetServer(serverId).FindRoles("Generals").First()) || user.Name == "khave";
         }
 
         public bool isInTestMode(CommandEventArgs e)

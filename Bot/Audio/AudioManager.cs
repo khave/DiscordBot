@@ -81,7 +81,7 @@ joinVoiceChannel(CommandEventArgs e)
                 return false;
             }
             //Console.WriteLine(e.User.VoiceChannel + " != " + _vClient.Channel);
-            if(_vClient != null && e.User.VoiceChannel != _vClient.Channel)
+            if(e.User.VoiceChannel != _vClient.Channel)
             {
                 return false;
             }
@@ -219,8 +219,12 @@ joinVoiceChannel(CommandEventArgs e)
             }
 
             _vClient.Clear();
-            _vClient.Wait(); // Wait for the Voice Client to finish sending data, as ffMPEG may have already finished buffering out a song, and it is unsafe to return now.
-
+            try {
+                _vClient.Wait(); // Wait for the Voice Client to finish sending data, as ffMPEG may have already finished buffering out a song, and it is unsafe to return now.
+            }catch(OperationCanceledException ex)
+            {
+                Console.WriteLine("Operation canceled");
+            }
             if (!process.HasExited)
             {
                 process.Kill();
