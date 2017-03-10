@@ -20,8 +20,10 @@ namespace Bot
         public List<AudioCommand> audioCommands = new List<AudioCommand>();
         public List<Response> responses = new List<Response>();
         public AudioManager audioManager;
+        public CooldownManager cooldownManager;
         public bool isTesting = false;
         public ulong serverId = 217373774821982210;
+        
         /*
 
 
@@ -38,7 +40,7 @@ namespace Bot
                 x.LogLevel = LogSeverity.Info;
                 x.LogHandler = Log;
             });
-
+            
             
           discord.UsingCommands(x =>
           {
@@ -50,6 +52,7 @@ namespace Bot
           load();
 
           audioManager = new AudioManager(this);
+            cooldownManager = new CooldownManager();
 
           
           var commands = discord.GetService<CommandService>();
@@ -117,7 +120,7 @@ namespace Bot
             commands.Add(new Commands.Hello());
             commands.Add(new Help(this));
             //commands.Add(new MusicJoin(this));
-            //commands.Add(new Cat());
+            commands.Add(new Cat(this));
             //commands.Add(new MusicDownload());
             //commands.Add(new MusicPause(this));
             commands.Add(new Roll(this));
@@ -180,6 +183,11 @@ namespace Bot
         public bool isInTestMode(CommandEventArgs e)
         {
             return isTesting && e.User.Name != "khave";
+        }
+
+        public CooldownManager getCooldownManager()
+        {
+            return cooldownManager;
         }
     }
 }

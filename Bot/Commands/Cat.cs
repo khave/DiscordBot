@@ -9,19 +9,21 @@ namespace Bot.Commands
     class Cat : BotCommand
     {
 
-        Loader loader;
+        public MyBot myBot;
 
-        public Cat() : base("cat", "Get a random cat", "!cat")
+        public Cat(MyBot myBot) : base("cat", "Get a random cat", "!cat")
         {
-
+            this.myBot = myBot;
         }
 
         public override async void onCommand(CommandEventArgs e, DiscordClient discord, string[] args)
         {
+            if (myBot.getCooldownManager().hasCooldown(e.User.Name + "catCooldown")) return;
+            myBot.getCooldownManager().addCooldown(e.User.Name + "catCooldown", 3);
+
             using (var client = new WebClient())
             {
-                Message message = await e.Channel.SendMessage("Finding random cat image...");
-                loader = new Loader(message);
+                await e.Channel.SendMessage("Finding random cat image...");
                 try
                 {
                     client.DownloadFile("http://thecatapi.com/api/images/get?format=src&type=png", @".\cat.png");

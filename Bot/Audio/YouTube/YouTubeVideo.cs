@@ -12,6 +12,7 @@ namespace Bot
     {
         public string id, title, description, duration, requester, url;
         public DateTime publishedDate;
+        public int rawDuration;
 
         public YouTubeVideo(string url, string requester)
         {
@@ -89,6 +90,7 @@ namespace Bot
                 t.Seconds,
                 t.Milliseconds);
                 video.duration = answer;
+                video.rawDuration = (int) System.Xml.XmlConvert.ToTimeSpan(tmp).TotalSeconds;
             }
             else
             {

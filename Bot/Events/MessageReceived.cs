@@ -23,8 +23,15 @@ namespace Bot.Events
                 {
                     if (e.Channel.IsPrivate)
                     {
-                        foreach(User user in myBot.discord.GetServer(myBot.serverId).Users){
-                            if (myBot.hasAdmin(user))
+                        if (myBot.getCooldownManager().hasCooldown(e.User.Name + "contactAdmin"))
+                        {
+                            await e.User.SendMessage("Please only contact the admins every 5 minutes!");
+                            return;
+                        }
+                        myBot.getCooldownManager().addCooldown(e.User.Name + "contactAdmin", 300);
+
+                        foreach (User user in myBot.discord.GetServer(myBot.serverId).Users){
+                            if (myBot.hasAdmin(user) && !user.IsBot && user.Status == UserStatus.Online)
                             {
                                 try {
                                     await user.SendMessage(e.User.Name + " has contacted an admin with the message: " +

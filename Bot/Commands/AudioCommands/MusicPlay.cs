@@ -65,6 +65,10 @@ namespace Bot.Commands.AudioCommands
         {
             if (!myBot.audioManager.isMusicChannel(e)) return;
 
+            if (myBot.getCooldownManager().hasCooldown(e.User.Name + "musicPlay")) return;
+            myBot.getCooldownManager().addCooldown(e.User.Name + "musicPlay", 2);
+
+
             if (args.Length < 1)
             {
                 string video = myBot.audioManager.queue.First().url;

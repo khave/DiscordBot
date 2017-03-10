@@ -183,6 +183,7 @@
     <Compile Include="Commands\Test.cs" />
     <Compile Include="Commands\AudioCommands\Volume.cs" />
     <Compile Include="Commands\Yandere.cs" />
+    <Compile Include="CooldownManager.cs" />
     <Compile Include="Events\MessageReceived.cs" />
     <Compile Include="Loader.cs" />
     <Compile Include="MyBot.cs" />

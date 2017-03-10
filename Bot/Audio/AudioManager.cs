@@ -158,6 +158,13 @@ joinVoiceChannel(CommandEventArgs e)
 
             YouTubeVideo ytVideo = new YouTubeVideo(pathOrUrl, e.User.Name);
 
+            //Couldn't find a video so do not add
+            if(ytVideo.title == "")
+            {
+                e.Channel.SendMessage("Could not find video!");
+                return;
+            }
+
             if (playingSong)
             {
                 queue.Enqueue(ytVideo);
