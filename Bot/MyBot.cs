@@ -109,7 +109,7 @@ namespace Bot
 
             discord.ExecuteAndWait(async () =>
            {
-               await discord.Connect("MjcxOTg3MDQ1MTAwOTQ1NDA4.C21F9Q.9OC5Lt1uMKyLVPoqhL-Rzp10mOo", TokenType.Bot);
+               await discord.Connect("MjcxOTg3MDQ1MTAwOTQ1NDA4.C7wF8Q.iA8cSZ4oFcHjGCxxpu69gwpnBuQ", TokenType.Bot);
                discord.SetGame("DM to contact mods");
            });
         }
